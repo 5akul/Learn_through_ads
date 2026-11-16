@@ -3,7 +3,7 @@
 Chrome-Extension, die YouTube-Werbepausen in kurze Lernkarten für Cambridge AS/A Level verwandelt.
 Die Werbung läuft normal weiter, nur stumm und von der Karte verdeckt. Nichts wird blockiert oder übersprungen.
 
-**Stand: Version 0.4** (Bau-Schritte 3 bis 5 von Version 1, dazu Einstellungsfenster und manueller Modus)
+**Stand: Version 0.5** (Bau-Schritte 3 bis 5 von Version 1, dazu Einstellungsfenster und manueller Modus)
 
 Auf YouTube:
 
@@ -14,7 +14,7 @@ Auf YouTube:
 - Fünf Kartentypen: Hook and reveal, Find the error, Fill the gap, Estimate, Spot the variables.
 - Bei langen Werbungen: Nach dem Beantworten erscheint „Next card", die nächste Karte kommt sofort, die Werbung läuft weiter.
 - Nach der Werbung wartet das Video. „Keep learning" und „Back to video" sind gleich groß und sofort klickbar.
-- Die Schriftgröße passt sich dem Player an. „Next card" und der Werbebalken bleiben immer sichtbar.
+- Die Schrift wird automatisch so groß, dass die ganze Karte samt Antwort genau in den Player passt: kein Scrollen, keine leere Fläche, auch im Vollbild. Die Größe springt nicht, wenn die Antwort erscheint.
 
 Kartenauswahl:
 

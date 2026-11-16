@@ -86,7 +86,7 @@ function makeVideo() {
       getComputedStyle(document.querySelector("#lta-overlay").shadowRoot.querySelector(".panel")).backgroundColor);
     assert.equal(background, "rgb(15, 15, 15)", "background must be solid");
     assert.equal(await hostStyle("clipPath"), "none", "no opening while the ad cannot be skipped");
-    assert.equal(await overlay.locator(".skiphint").count(), 0);
+    assert.equal(await overlay.locator(".skiphint:visible").count(), 0);
   });
 
   await step("ad can be skipped: a hint appears and YouTube's Skip button is reachable", async () => {
@@ -106,7 +106,7 @@ function makeVideo() {
     if (shotsDir) await page.screenshot({ path: path.join(shotsDir, "1b-skippable.png") });
     await showSkip(false);
     await page.waitForFunction(() => getComputedStyle(document.querySelector("#lta-overlay")).clipPath === "none");
-    assert.equal(await overlay.locator(".skiphint").count(), 0);
+    assert.equal(await overlay.locator(".skiphint:visible").count(), 0);
   });
 
   await step("'Hide card' gives the player back, 'Show card' brings the card back", async () => {
@@ -138,7 +138,7 @@ function makeVideo() {
       await o.locator("input[type=range]").fill("20");
       await o.locator("text=Lock in").click();
     } else {
-      await o.locator(".buttons .btn").first().click();
+      await o.locator(".content .buttons .btn").first().click();
     }
     await o.locator(".reveal").waitFor();
     await o.locator(".rate button", { hasText: "👍" }).click();
@@ -228,11 +228,11 @@ function makeVideo() {
     const hook = await overlay.locator(".hook").textContent();
     const card = allCards.find((c) => c.type === "cloze" && c.hook.replace("____", "______") === hook);
     assert.ok(card, "expected a two-answer card, got: " + hook);
-    const texts = await overlay.locator(".buttons .btn").allTextContents();
+    const texts = await overlay.locator(".content .buttons .btn").allTextContents();
     assert.deepEqual([...texts].sort(), [...card.options].sort(), "exactly the two options as buttons");
     return card;
   };
-  const optionButton = (text) => overlay.locator(".buttons .btn", { hasText: new RegExp(`^${text}$`) });
+  const optionButton = (text) => overlay.locator(".content .buttons .btn", { hasText: new RegExp(`^${text}$`) });
   const lastAnswer = async () => {
     const { events } = await worker.evaluate(() => chrome.storage.local.get("events"));
     return events.filter((e) => e.type === "answer").pop();
@@ -249,7 +249,7 @@ function makeVideo() {
     await right.click();
     assert.equal(await overlay.locator(".verdict").textContent(), "Correct");
     assert.match(await right.getAttribute("class"), /\bok\b/);
-    assert.equal(await overlay.locator(".buttons .btn:disabled").count(), 2, "no second try");
+    assert.equal(await overlay.locator(".content .buttons .btn:disabled").count(), 2, "no second try");
     assert.equal(await overlay.locator(".reveal").textContent().then((t) => t.includes(card.answer)), true);
     const answer = await lastAnswer();
     assert.equal(answer.id, card.id);
@@ -282,7 +282,7 @@ function makeVideo() {
     const card = allCards.find((c) => (c.type === "cloze" ? c.hook.replace("____", "______") : c.hook) === hook);
     assert.ok(card, "card on screen not found in the card files: " + hook);
     if (card.type === "cloze") {
-      await scope.locator(".buttons .btn", { hasText: new RegExp(`^${card.options[0]}$`) }).click();
+      await scope.locator(".content .buttons .btn", { hasText: new RegExp(`^${card.options[0]}$`) }).click();
     } else if (card.type === "find_error") {
       await scope.locator(".code button").nth(card.error_line - 1).click();
     } else if (card.type === "estimate") {
@@ -405,13 +405,15 @@ function makeVideo() {
     const seen = allCards.filter((c) => !types.includes(c.type)).map((c) => ({ type: "show", id: c.id, t: Date.now() }));
     await worker.evaluate((events) => chrome.storage.local.set({ events, ratings: {}, settings: {} }), seen);
   };
-  const footerButtons = () => overlay.locator(".footer .btn").allTextContents();
+  const footerButtons = () => overlay.locator(".footer .btn:visible").allTextContents();
 
   await step("long ad: after answering, 'Next card' brings a new card while the ad keeps running", async () => {
     await reset({});
     await setAd(true);
     await overlay.waitFor();
     assert.deepEqual(await footerButtons(), [], "no 'Next card' before the card is answered");
+    await page.waitForFunction(() =>
+      parseFloat(document.querySelector("#lta-overlay").shadowRoot.querySelector(".bar div").style.width) > 0);
     const first = await answerCorrectly(overlay);
     assert.deepEqual(await footerButtons(), ["Next card"]);
     const width = await page.evaluate(() =>
@@ -459,7 +461,7 @@ function makeVideo() {
     const sides = new Set();
     for (let i = 0; i < 16 && sides.size < 2; i++) {
       const card = await openTwoAnswerCard();
-      const texts = await overlay.locator(".buttons .btn").allTextContents();
+      const texts = await overlay.locator(".content .buttons .btn").allTextContents();
       sides.add(texts.indexOf(card.options[0]) === 0 ? "left" : "right");
       await closeCard();
     }
@@ -491,6 +493,63 @@ function makeVideo() {
     assert.equal((await vid()).muted, true);
     assert.equal(await overlay.locator("text=Back to video").count(), 0);
     await closeCard();
+  });
+
+  await step("every card fills the player: nothing to scroll, no empty area, also in fullscreen", async () => {
+    const measure = () => page.evaluate(() => {
+      const root = document.querySelector("#lta-overlay").shadowRoot;
+      const content = root.querySelector(".content");
+      const inner = root.querySelector(".inner");
+      const footer = root.querySelector(".footer").getBoundingClientRect();
+      const host = document.querySelector("#lta-overlay").getBoundingClientRect();
+      return {
+        scrolls: content.scrollHeight > content.clientHeight,
+        filled: inner.offsetHeight / content.clientHeight,
+        footerInside: footer.bottom <= host.bottom + 0.5,
+        font: parseFloat(getComputedStyle(root.querySelector(".panel")).fontSize),
+      };
+    });
+    const resizePlayer = (w, h) => page.evaluate(([w, h]) => {
+      const p = document.querySelector("#movie_player");
+      p.style.width = w + "px";
+      p.style.height = h + "px";
+    }, [w, h]);
+    await page.setViewportSize({ width: 1700, height: 1000 });
+    for (const card of allCards) {
+      const others = allCards.filter((c) => c.id !== card.id).map((c) => ({ type: "show", id: c.id, t: Date.now() }));
+      await worker.evaluate((events) => chrome.storage.local.set({ events, settings: {} }), others);
+      await setAd(true);
+      await overlay.waitFor();
+      await showSkip(true); // worst case: the skip hint is showing too
+      await overlay.locator(".skiphint:visible").waitFor();
+      const fonts = {};
+      for (const [w, h] of [[854, 480], [640, 360], [1600, 900]]) {
+        await resizePlayer(w, h);
+        await page.waitForTimeout(150);
+        const m = await measure();
+        fonts[w] = m.font;
+        assert.equal(m.scrolls, false, `${card.id} at ${w}x${h} before the answer: must not scroll`);
+        assert.equal(m.footerInside, true, `${card.id} at ${w}x${h}: footer must be inside the player`);
+        assert.ok(m.filled > 0.9, `${card.id} at ${w}x${h}: only ${Math.round(m.filled * 100)} % of the height used`);
+      }
+      assert.ok(fonts[1600] > fonts[854] && fonts[854] > fonts[640], `${card.id}: text must grow with the player ${JSON.stringify(fonts)}`);
+      await resizePlayer(854, 480);
+      await page.waitForTimeout(150);
+      const before = await measure();
+      await answerCorrectly(overlay);
+      const after = await measure();
+      assert.equal(after.scrolls, false, `${card.id} with the answer showing: must not scroll`);
+      assert.equal(after.font, before.font, `${card.id}: text size must not jump when the answer appears`);
+      assert.deepEqual(await footerButtons(), ["Next card"]);
+      const next = await overlay.locator(".footer .btn:visible").boundingBox();
+      const skipBox = await page.locator(".ytp-skip-ad-button").boundingBox();
+      const apart = next.x + next.width <= skipBox.x || next.y + next.height <= skipBox.y || next.y >= skipBox.y + skipBox.height;
+      assert.ok(apart, `${card.id}: 'Next card' must not reach into the Skip button`);
+      if (shotsDir) await page.screenshot({ path: path.join(shotsDir, `fit-${card.type}.png`), clip: { x: 0, y: 0, width: 854, height: 480 } });
+      await showSkip(false);
+      await closeCard();
+    }
+    await page.setViewportSize({ width: 1000, height: 600 });
   });
 
   assert.deepEqual(errors, [], "page errors: " + errors.join("; "));

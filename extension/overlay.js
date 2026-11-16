@@ -17,10 +17,10 @@
       height: 100%; overflow: hidden; padding: 1.1em 1.1em 1em;
       display: flex; flex-direction: column; align-items: center; gap: 0.8em;
       background: #0f0f0f; color: #f1f1f1; /* solid: the ad must not show through */
-      /* Text size follows the player: its width, and its height so a full card fits without scrolling. */
-      font: 400 clamp(11px, min(2.3cqw, 3.1cqh), 26px)/1.4 Roboto, Arial, sans-serif;
+      /* --fs is set by fit(): the largest text size at which the whole card fits the player. */
+      font: 400 var(--fs, 16px)/1.4 Roboto, Arial, sans-serif;
     }
-    .content, .footer { width: 100%; max-width: 36em; }
+    .content, .footer { width: 100%; max-width: 64em; }
     .panel.page { height: auto; min-height: 18em; border-radius: 14px; font-size: clamp(14px, 3.6cqw, 20px); }
     /* Hidden card: only a small button stays, the player is free again. */
     .panel.min { height: auto; padding: 0; background: none; font-size: 13px; }
@@ -34,10 +34,11 @@
     .skiphint { font-size: 0.8em; font-weight: 600; color: #ffcc00; }
     .frame { position: absolute; border: 3px solid #ffcc00; border-radius: 8px; pointer-events: none; }
     /* The card itself scrolls if it is ever too long; the footer below always stays in view. */
-    .content {
-      flex: 1 1 auto; min-height: 0; overflow-y: auto; scrollbar-width: thin;
-      display: flex; flex-direction: column; gap: 0.8em;
-    }
+    .content { flex: 1 1 auto; min-height: 0; overflow-y: auto; scrollbar-width: thin; display: flex; flex-direction: column; }
+    /* The card sits in the middle of the free height. */
+    .inner { margin: auto 0; display: flex; flex-direction: column; gap: 0.8em; }
+    .panel.page .inner { margin: 0; }
+    .reserved { visibility: hidden; }
     .top { display: flex; justify-content: space-between; gap: 0.5em; font-size: 0.7em; color: #9a9a9a; }
     .hook { font-size: 1.15em; font-weight: 600; line-height: 1.35; }
     .hint { font-size: 0.85em; color: #9a9a9a; }
@@ -135,6 +136,70 @@
       this.frame.hidden = true;
       shadow.append(styleEl, this.panel, this.frame);
       player.append(this.host);
+
+      if (this.layout === "player" && typeof ResizeObserver === "function") {
+        // The player changed size (fullscreen, theatre mode): the Skip button moved too, so measure it first.
+        this.resizeObserver = new ResizeObserver(() => {
+          this.updateHole();
+          this.fit();
+        });
+        this.resizeObserver.observe(this.host);
+      }
+    }
+
+    // Chooses the largest text size at which the complete card (question, answer and buttons)
+    // fits into the player. So there is nothing to scroll and no empty area left over.
+    // Only if a card is too long even at the smallest size does the card scroll.
+    fit() {
+      if (this.layout !== "player" || this.minimized || !this.inner) return;
+      const box = this.host.getBoundingClientRect();
+      if (!box.height || !box.width) return;
+      const fits = (size) => {
+        this.panel.style.setProperty("--fs", size + "px");
+        return this.inner.offsetHeight <= this.content.clientHeight;
+      };
+      const search = (low, high) => {
+        if (fits(high)) return;
+        for (let i = 0; i < 8; i++) {
+          const mid = (low + high) / 2;
+          if (fits(mid)) low = mid;
+          else high = mid;
+        }
+        this.panel.style.setProperty("--fs", Math.floor(low * 10) / 10 + "px");
+      };
+      const largest = Math.max(9, Math.min(box.height * 0.075, box.width * 0.045, 54));
+      search(9, largest);
+      // Making room for the Skip opening can wrap a line. If so, go one step smaller.
+      this.avoidHole();
+      if (this.inner.offsetHeight > this.content.clientHeight) {
+        search(9, parseFloat(this.panel.style.getPropertyValue("--fs")));
+        this.avoidHole();
+      }
+    }
+
+    // Keeps the card's own rows out of the opening left for YouTube's Skip button.
+    avoidHole() {
+      for (const part of [this.content, this.footer]) {
+        if (!part) continue;
+        let pad = 0;
+        if (this.hole && !this.minimized && this.layout === "player") {
+          const host = this.host.getBoundingClientRect();
+          const box = part.getBoundingClientRect();
+          const gap = 10;
+          const left = host.left + this.hole.x - gap;
+          const top = host.top + this.hole.y - gap;
+          const bottom = host.top + this.hole.y + this.hole.h + gap;
+          if (box.bottom > top && box.top < bottom && box.right > left) pad = box.right - left;
+        }
+        part.style.paddingRight = pad ? pad + "px" : "";
+      }
+    }
+
+    // After a change inside the same card: keep the size steady, only shrink if something no longer fits.
+    ensureFits() {
+      if (this.layout !== "player" || this.minimized || !this.inner) return;
+      this.avoidHole();
+      if (this.inner.offsetHeight > this.content.clientHeight) this.fit();
     }
 
     // On YouTube the card covers the whole player, so nothing of the ad shows next to it.
@@ -162,30 +227,43 @@
       this.panel.classList.toggle("min", on);
       this.applyLayout();
       this.applyFrame();
+      if (!on) {
+        this.updateHole();
+        this.fit();
+      }
     }
 
     // YouTube's own Skip button stays the only way to skip. When it is there, the card leaves
     // an opening exactly over it, so the click goes to YouTube, and a hint points to it.
     setSkipButton(buttonEl) {
+      this.skipEl = buttonEl || null;
+      this.updateHole();
+    }
+
+    updateHole() {
+      if (this.minimized) return; // measured again when the card is shown again
       let hole = null;
-      if (buttonEl && this.layout === "player") {
+      if (this.skipEl && this.skipEl.isConnected && this.layout === "player") {
         const h = this.host.getBoundingClientRect();
-        const b = buttonEl.getBoundingClientRect();
+        const b = this.skipEl.getBoundingClientRect();
         const margin = 6;
-        hole = {
-          x: Math.round(b.left - h.left - margin), y: Math.round(b.top - h.top - margin),
-          w: Math.round(b.width + 2 * margin), h: Math.round(b.height + 2 * margin),
-        };
-        if (this.minimized) hole = this.hole; // sizes are not comparable while hidden; keep the last one
+        if (b.width && b.height) {
+          hole = {
+            x: Math.round(b.left - h.left - margin), y: Math.round(b.top - h.top - margin),
+            w: Math.round(b.width + 2 * margin), h: Math.round(b.height + 2 * margin),
+          };
+        }
       }
       const key = hole ? `${hole.x},${hole.y},${hole.w},${hole.h}` : "";
       if (key === this.holeKey) return;
-      const changedState = !!hole !== !!this.hole;
+      const appearedOrGone = !!hole !== !!this.hole;
       this.hole = hole;
       this.holeKey = key;
       this.applyLayout();
       this.applyFrame();
-      if (changedState && this.footer) this.renderFooter();
+      if (!this.footer) return;
+      if (appearedOrGone) this.renderFooter(); // show or hide the hint; text size stays steady
+      else this.fit(); // the button moved, so the layout really changed
     }
 
     holePath() {
@@ -210,6 +288,7 @@
 
     destroy() {
       this.clearTimers();
+      if (this.resizeObserver) this.resizeObserver.disconnect();
       this.host.remove();
     }
 
@@ -243,7 +322,8 @@
       this.answered = false;
       this.revealed = false;
       this.shownAt = Date.now();
-      this.content = el("div", "content");
+      this.inner = el("div", "inner");
+      this.content = el("div", "content", this.inner);
       this.footer = el("div", "footer");
       this.panel.replaceChildren(this.pill, this.content, this.footer);
 
@@ -252,7 +332,7 @@
         if (info.streak) right.append(" · ");
         right.append(button("hide", "Hide card", () => this.setMinimized(true)));
       }
-      this.content.append(
+      this.inner.append(
         el("div", "top",
           el("span", null, `${SUBJECTS[card.subject] || card.subject} · Ch. ${card.chapter} ${card.chapter_title || ""}`),
           right),
@@ -261,8 +341,7 @@
 
       this.body = el("div");
       this.reveal = el("div", "reveal");
-      this.reveal.hidden = true;
-      this.content.append(this.body, this.reveal);
+      this.inner.append(this.body, this.reveal);
 
       const render = {
         hook_reveal: () => this.renderSelfCheck(null),
@@ -272,7 +351,18 @@
         estimate: () => this.renderEstimate(),
       }[card.type];
       render();
+
+      // On YouTube the answer area is built right away but kept invisible. Its space is reserved,
+      // so the text size is right from the start and nothing jumps when the answer appears.
+      if (this.layout === "player") {
+        const selfCheck = card.type === "hook_reveal" || card.type === "variables";
+        this.buildReveal(selfCheck ? null : true);
+        this.reveal.classList.add("reserved");
+      } else {
+        this.reveal.hidden = true;
+      }
       this.renderFooter();
+      this.fit();
     }
 
     // Records the answer once and shows the resolution.
@@ -285,10 +375,16 @@
     // ok is true/false when the card could check the answer itself,
     // and null when the user judges themselves after seeing the answer.
     showReveal(ok) {
+      this.revealed = true;
+      this.buildReveal(ok);
+      this.reveal.hidden = false;
+      this.reveal.classList.remove("reserved");
+      this.renderFooter(); // "Next card" becomes available
+    }
+
+    buildReveal(ok) {
       const card = this.card;
       const selfCheck = ok === null;
-      this.revealed = true;
-      this.reveal.hidden = false;
       this.reveal.replaceChildren();
       if (selfCheck) {
         this.reveal.append(el("div", "answer-label", "Answer"));
@@ -330,7 +426,6 @@
         rate.append(button("more", "more", () => window.open(card.notes_link, "_blank", "noopener")));
       }
       this.reveal.append(rate);
-      this.renderFooter(); // "Next card" becomes available
     }
 
     // Hook and reveal / spot the variables: think first, then reveal, then say honestly if you knew it.
@@ -423,14 +518,12 @@
       this.barFill = null;
       if (this.mode === "ad") {
         // Done with this card while the ad is still running? Go on right away.
-        if (this.revealed) {
-          this.footer.append(el("div", "buttons",
-            button("btn primary wide", "Next card", () => this.handlers.onNext())
-          ));
-        }
-        if (this.hole) {
-          this.footer.append(el("div", "skiphint", "You can skip this ad now: YouTube's Skip button is in the yellow frame."));
-        }
+        // Both rows always take their space and only become visible when they apply.
+        const next = el("div", "buttons", button("btn primary wide", "Next card", () => this.handlers.onNext()));
+        if (!this.revealed) next.classList.add("reserved");
+        const hint = el("div", "skiphint", "You can skip this ad now: YouTube's Skip button is in the yellow frame.");
+        if (!this.hole) hint.classList.add("reserved");
+        this.footer.append(next, hint);
         this.barFill = el("div");
         this.adTime = el("div", "adtime", "Ad muted");
         this.footer.append(el("div", "bar", this.barFill), this.adTime);
@@ -457,6 +550,7 @@
           back
         ));
       }
+      this.ensureFits();
     }
   }
 
