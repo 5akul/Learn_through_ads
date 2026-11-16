@@ -14,13 +14,19 @@
     * { box-sizing: border-box; }
     [hidden] { display: none !important; }
     .panel {
-      height: 100%; overflow-y: auto; padding: 1em 1.1em;
+      height: 100%; overflow: hidden; padding: 1em 1.1em;
       display: flex; flex-direction: column; gap: 0.8em;
       background: rgba(15, 15, 15, 0.95); color: #f1f1f1;
       border-radius: 0 0 14px 0; box-shadow: 4px 4px 24px rgba(0, 0, 0, 0.5);
-      font: 400 clamp(14px, 3.6cqw, 22px)/1.4 Roboto, Arial, sans-serif;
+      /* Text size follows the player: its width, and its height so a full card fits without scrolling. */
+      font: 400 clamp(11px, min(3.6cqw, 3.1cqh), 22px)/1.4 Roboto, Arial, sans-serif;
     }
-    .panel.page { height: auto; min-height: 18em; border-radius: 14px; }
+    .panel.page { height: auto; min-height: 18em; border-radius: 14px; font-size: clamp(14px, 3.6cqw, 20px); }
+    /* The card itself scrolls if it is ever too long; the footer below always stays in view. */
+    .content {
+      flex: 1 1 auto; min-height: 0; overflow-y: auto; scrollbar-width: thin;
+      display: flex; flex-direction: column; gap: 0.8em;
+    }
     .top { display: flex; justify-content: space-between; gap: 0.5em; font-size: 0.7em; color: #9a9a9a; }
     .hook { font-size: 1.15em; font-weight: 600; line-height: 1.35; }
     .hint { font-size: 0.85em; color: #9a9a9a; }
@@ -53,6 +59,9 @@
     input[type=range] { width: 100%; accent-color: #f1f1f1; }
     .reveal { border-top: 1px solid #2e2e2e; padding-top: 0.7em; display: flex; flex-direction: column; gap: 0.35em; }
     .verdict { font-weight: 700; }
+    .answer-label { font-size: 0.7em; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; color: #ffcc00; }
+    .strong { font-size: 1.05em; font-weight: 600; }
+    .ask { margin-top: 0.5em; font-size: 0.85em; color: #9a9a9a; }
     .verdict.ok { color: #3ea66b; }
     .verdict.bad { color: #e06c68; }
     .label { color: #9a9a9a; }
@@ -61,7 +70,7 @@
     .rate button { font-size: 1.1em; padding: 0.15em 0.5em; border: 0; border-radius: 0.4em; background: #3a3a3a; cursor: pointer; }
     .rate button.chosen { outline: 2px solid #f1f1f1; }
     .rate .more { margin-left: auto; background: none; color: #9a9a9a; text-decoration: underline; font-size: 1em; }
-    .footer { margin-top: auto; display: flex; flex-direction: column; gap: 0.35em; }
+    .footer { flex: none; display: flex; flex-direction: column; gap: 0.35em; }
     .bar { height: 4px; background: #2e2e2e; border-radius: 2px; overflow: hidden; }
     .bar div { height: 100%; width: 0; background: #ffcc00; transition: width 0.25s linear; }
     .adtime { font-size: 0.7em; color: #9a9a9a; }
@@ -100,7 +109,7 @@
         : {
             position: "absolute", top: "0", left: "0", bottom: "56px",
             width: "clamp(300px, 58%, 760px)", "max-width": "100%",
-            "z-index": "1000", "container-type": "inline-size",
+            "z-index": "1000", "container-type": "size",
           };
       for (const [k, v] of Object.entries(style)) this.host.style.setProperty(k, v, "important");
 
@@ -140,6 +149,7 @@
     }
 
     setAdProgress(fraction, secondsLeft) {
+      this.lastProgress = { fraction, secondsLeft };
       if (this.mode !== "ad" || !this.barFill) return;
       this.barFill.style.width = Math.min(100, Math.max(0, fraction * 100)) + "%";
       this.adTime.textContent = `Ad muted · ${secondsLeft} s left`;
@@ -150,11 +160,14 @@
       this.card = card;
       this.info = info;
       this.answered = false;
+      this.revealed = false;
       this.shownAt = Date.now();
-      this.panel.replaceChildren();
+      this.content = el("div", "content");
+      this.footer = el("div", "footer");
+      this.panel.replaceChildren(this.content, this.footer);
 
       const streak = info.streak ? `🔥 ${info.streak} day streak` : "";
-      this.panel.append(
+      this.content.append(
         el("div", "top",
           el("span", null, `${SUBJECTS[card.subject] || card.subject} · Ch. ${card.chapter} ${card.chapter_title || ""}`),
           el("span", null, streak)),
@@ -164,8 +177,7 @@
       this.body = el("div");
       this.reveal = el("div", "reveal");
       this.reveal.hidden = true;
-      this.footer = el("div", "footer");
-      this.panel.append(this.body, this.reveal, this.footer);
+      this.content.append(this.body, this.reveal);
 
       const render = {
         hook_reveal: () => this.renderSelfCheck(null),
@@ -185,21 +197,39 @@
       this.handlers.onAnswer(this.card, ok, Date.now() - this.shownAt);
     }
 
+    // ok is true/false when the card could check the answer itself,
+    // and null when the user judges themselves after seeing the answer.
     showReveal(ok) {
       const card = this.card;
+      const selfCheck = ok === null;
+      this.revealed = true;
       this.reveal.hidden = false;
       this.reveal.replaceChildren();
-      if (ok !== null) {
+      if (selfCheck) {
+        this.reveal.append(el("div", "answer-label", "Answer"));
+      } else {
         this.reveal.append(el("div", "verdict " + (ok ? "ok" : "bad"), ok ? "Correct" : "Not quite"));
       }
       if (card.type === "variables") {
         this.reveal.append(
-          el("div", null, el("span", "label", "IV: "), card.iv),
-          el("div", null, el("span", "label", "DV: "), card.dv)
+          el("div", "strong", el("span", "label", "IV: "), card.iv),
+          el("div", "strong", el("span", "label", "DV: "), card.dv)
         );
       }
-      this.reveal.append(el("div", null, card.answer));
+      this.reveal.append(el("div", selfCheck && card.type !== "variables" ? "answer strong" : "answer", card.answer));
       if (card.source) this.reveal.append(el("div", "source", "Source: " + card.source));
+
+      if (selfCheck) {
+        // Both buttons look the same on purpose: no nudge towards "I knew it".
+        const yes = button("btn", "I knew it", () => done(true));
+        const no = button("btn", "I didn't", () => done(false));
+        const done = (knewIt) => {
+          yes.disabled = no.disabled = true;
+          (knewIt ? yes : no).classList.add(knewIt ? "ok" : "bad");
+          this.answer(knewIt);
+        };
+        this.reveal.append(el("div", "ask", "Did you know it?"), el("div", "buttons", yes, no));
+      }
 
       const rate = el("div", "rate", "Card quality:");
       for (const [emoji, value] of [["👍", "up"], ["😐", "neutral"], ["👎", "down"]]) {
@@ -215,22 +245,14 @@
         rate.append(button("more", "more", () => window.open(card.notes_link, "_blank", "noopener")));
       }
       this.reveal.append(rate);
+      this.renderFooter(); // "Next card" becomes available
     }
 
     // Hook and reveal / spot the variables: think first, then reveal, then say honestly if you knew it.
     renderSelfCheck(hint) {
       if (hint) this.body.append(el("div", "hint", hint));
-      const row = el("div", "buttons");
       const show = button("btn primary wide", "Show answer (3)", () => {
-        row.replaceChildren();
-        const yes = button("btn primary", "I knew it", () => done(true));
-        const no = button("btn", "I didn't", () => done(false));
-        const done = (ok) => {
-          yes.disabled = no.disabled = true;
-          (ok ? yes : no).classList.add(ok ? "ok" : "bad");
-          this.answer(ok);
-        };
-        row.append(yes, no);
+        this.body.replaceChildren();
         this.showReveal(null);
       });
       show.disabled = true;
@@ -246,8 +268,7 @@
         }
       }, 1000);
       this.timers.push(t);
-      row.append(show);
-      this.body.append(row);
+      this.body.append(el("div", "buttons", show));
     }
 
     renderFindError() {
@@ -316,9 +337,16 @@
       this.footer.replaceChildren();
       this.barFill = null;
       if (this.mode === "ad") {
+        // Done with this card while the ad is still running? Go on right away.
+        if (this.revealed) {
+          this.footer.append(el("div", "buttons",
+            button("btn primary wide", "Next card", () => this.handlers.onNext())
+          ));
+        }
         this.barFill = el("div");
         this.adTime = el("div", "adtime", "Ad muted");
         this.footer.append(el("div", "bar", this.barFill), this.adTime);
+        if (this.lastProgress) this.setAdProgress(this.lastProgress.fraction, this.lastProgress.secondsLeft);
       } else if (this.mode === "practice") {
         const pos = this.info && this.info.position;
         if (pos) this.footer.append(el("div", "adtime", `Card ${pos.index} of ${pos.total}`));

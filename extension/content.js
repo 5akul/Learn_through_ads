@@ -12,6 +12,7 @@
   // Right after an ad, YouTube starts the video by itself. During this time
   // we pause it again, so the choice "keep learning / back to video" stays open.
   const AUTOPLAY_GUARD_MS = 3000;
+  const AD_END_DELAY_MS = 250;
 
   let player = null;
   let observer = null;
@@ -23,6 +24,8 @@
   let guardUntil = 0;
   let settings = { currentChapter: {}, minCorrect: 0 };
   let correctThisBreak = 0;
+  let heldByUs = false; // we paused the video after an ad and it is still waiting
+  let endTimer = null;
   const watchedVideos = new WeakSet();
 
   function getVideo() {
@@ -94,6 +97,7 @@
   function closeOverlay() {
     if (overlay) overlay.destroy();
     overlay = null;
+    heldByUs = false;
   }
 
   // ---- Muting: the ad keeps playing, only the sound is off. Afterwards the old state comes back.
@@ -113,6 +117,12 @@
   // ---- Ad start and end
   async function onAdStart() {
     inAd = true;
+    if (heldByUs) {
+      // The next ad of the same break started while we were holding the video. Never hold an ad.
+      heldByUs = false;
+      const video = getVideo();
+      if (video && video.paused) video.play().catch(() => {});
+    }
     muteForAd();
     startProgress();
     if (overlay) {
@@ -136,7 +146,10 @@
     overlay.setMode("after");
     const video = getVideo();
     guardUntil = Date.now() + AUTOPLAY_GUARD_MS;
-    if (video) video.pause();
+    if (video) {
+      video.pause();
+      heldByUs = true;
+    }
   }
 
   function startProgress() {
@@ -185,14 +198,26 @@
     if (!player) return;
     watchVideo(getVideo());
     const adShowing = player.classList.contains(AD_CLASS);
-    if (adShowing && !inAd) onAdStart();
-    else if (!adShowing && inAd) onAdEnd();
+    if (adShowing) {
+      clearTimeout(endTimer);
+      endTimer = null;
+      if (!inAd) onAdStart();
+    } else if (inAd && !endTimer) {
+      // Between two ads of one break the mark can disappear for a moment.
+      // Wait briefly and look again before treating the ad as over.
+      endTimer = setTimeout(() => {
+        endTimer = null;
+        if (inAd && player && !player.classList.contains(AD_CLASS)) onAdEnd();
+      }, AD_END_DELAY_MS);
+    }
   }
 
   function bindPlayer() {
     const found = document.querySelector(PLAYER_SELECTOR);
     if (found === player) return;
     if (observer) observer.disconnect();
+    clearTimeout(endTimer);
+    endTimer = null;
     closeOverlay();
     stopProgress();
     inAd = false;
@@ -209,6 +234,28 @@
     if (!inAd) closeOverlay();
   });
 
-  setInterval(bindPlayer, 1000);
+  // After the extension was updated or reloaded, this old copy of the script can no longer
+  // talk to it. Then it cleans up after itself; the new version takes over on the next page load.
+  function extensionAlive() {
+    try {
+      return !!chrome.runtime.id;
+    } catch (err) {
+      return false;
+    }
+  }
+
+  const ticker = setInterval(() => {
+    if (extensionAlive()) {
+      bindPlayer();
+      return;
+    }
+    clearInterval(ticker);
+    clearTimeout(endTimer);
+    if (observer) observer.disconnect();
+    stopProgress();
+    if (inAd) restoreSound();
+    inAd = false;
+    closeOverlay();
+  }, 1000);
   bindPlayer();
 })();

@@ -360,6 +360,99 @@ function makeVideo() {
     await practice.close();
   });
 
+  // ---- Feedback from the first real test on YouTube
+  const onlyTypesLeft = async (types) => {
+    const seen = allCards.filter((c) => !types.includes(c.type)).map((c) => ({ type: "show", id: c.id, t: Date.now() }));
+    await worker.evaluate((events) => chrome.storage.local.set({ events, ratings: {}, settings: {} }), seen);
+  };
+  const footerButtons = () => overlay.locator(".footer .btn").allTextContents();
+
+  await step("long ad: after answering, 'Next card' brings a new card while the ad keeps running", async () => {
+    await reset({});
+    await setAd(true);
+    await overlay.waitFor();
+    assert.deepEqual(await footerButtons(), [], "no 'Next card' before the card is answered");
+    const first = await answerCorrectly(overlay);
+    assert.deepEqual(await footerButtons(), ["Next card"]);
+    const width = await page.evaluate(() =>
+      document.querySelector("#lta-overlay").shadowRoot.querySelector(".bar div").style.width);
+    assert.ok(parseFloat(width) > 0, "progress bar must not jump back to zero");
+    await overlay.locator(".footer .btn").click();
+    await page.waitForFunction((hook) =>
+      document.querySelector("#lta-overlay").shadowRoot.querySelector(".hook").textContent !== hook,
+      first.type === "cloze" ? first.hook.replace("____", "______") : first.hook);
+    assert.deepEqual(await footerButtons(), [], "the new card is not answered yet");
+    const v = await vid();
+    assert.equal(v.paused, false, "the ad keeps running");
+    assert.equal(v.muted, true, "the ad stays muted");
+    assert.match(await overlay.locator(".adtime").textContent(), /^Ad muted/);
+    if (shotsDir) await page.screenshot({ path: path.join(shotsDir, "8-next-card-during-ad.png") });
+    await closeCard();
+  });
+
+  await step("reveal card: the answer is labelled and comes before 'Did you know it?'", async () => {
+    await onlyTypesLeft(["hook_reveal"]);
+    await setAd(true);
+    await overlay.waitFor();
+    const hook = await overlay.locator(".hook").textContent();
+    const card = allCards.find((c) => c.type === "hook_reveal" && c.hook === hook);
+    assert.ok(card, "expected a reveal card, got: " + hook);
+    await overlay.locator("button:has-text('Show answer'):not([disabled])").click({ timeout: 6000 });
+    const order = await page.evaluate(() =>
+      [...document.querySelector("#lta-overlay").shadowRoot.querySelector(".reveal").children].map((e) => e.className));
+    assert.deepEqual(order.slice(0, 2), ["answer-label", "answer strong"]);
+    assert.ok(order.indexOf("ask") > order.indexOf("answer strong"), "question comes after the answer");
+    assert.equal(await overlay.locator(".answer-label").textContent(), "Answer");
+    assert.equal(await overlay.locator(".answer").textContent(), card.answer);
+    assert.equal(await overlay.locator("text=Show answer").count(), 0, "the reveal button is gone");
+    for (const label of ["I knew it", "I didn't"]) {
+      assert.doesNotMatch(await overlay.locator(".reveal .btn", { hasText: label }).getAttribute("class"), /primary/,
+        "both self-check buttons look the same");
+    }
+    if (shotsDir) await page.screenshot({ path: path.join(shotsDir, "9-reveal-card.png") });
+    await overlay.locator("text=I didn't").click();
+    assert.equal((await lastAnswer()).ok, false);
+    await closeCard();
+  });
+
+  await step("two-answer card: the right answer is not always on the same side", async () => {
+    const sides = new Set();
+    for (let i = 0; i < 16 && sides.size < 2; i++) {
+      const card = await openTwoAnswerCard();
+      const texts = await overlay.locator(".buttons .btn").allTextContents();
+      sides.add(texts.indexOf(card.options[0]) === 0 ? "left" : "right");
+      await closeCard();
+    }
+    assert.equal(sides.size, 2, "the right answer appeared only on the " + [...sides][0]);
+  });
+
+  await step("two ads in a row: a short gap between them does not interrupt the card", async () => {
+    await reset({});
+    await setAd(true);
+    await overlay.waitFor();
+    await page.evaluate(() => {
+      const p = document.querySelector("#movie_player");
+      p.classList.remove("ad-showing");
+      setTimeout(() => p.classList.add("ad-showing"), 100);
+    });
+    await page.waitForTimeout(700);
+    assert.equal(await overlay.locator("text=Back to video").count(), 0, "must still be in ad mode");
+    const v = await vid();
+    assert.equal(v.paused, false, "the second ad must not be paused");
+    assert.equal(v.muted, true);
+  });
+
+  await step("a new ad right after a break is never held back", async () => {
+    await setAd(false);
+    await overlay.locator("text=Back to video").waitFor();
+    assert.equal((await vid()).paused, true);
+    await setAd(true); // the next ad starts while the video was waiting for the choice
+    await page.waitForFunction(() => !document.querySelector("video").paused);
+    assert.equal((await vid()).muted, true);
+    assert.equal(await overlay.locator("text=Back to video").count(), 0);
+    await closeCard();
+  });
+
   assert.deepEqual(errors, [], "page errors: " + errors.join("; "));
   await context.close();
   console.log(`\nall ${steps.length} browser tests passed`);

@@ -3,7 +3,7 @@
 Chrome-Extension, die YouTube-Werbepausen in kurze Lernkarten für Cambridge AS/A Level verwandelt.
 Die Werbung läuft normal weiter, nur stumm. Nichts wird blockiert oder übersprungen.
 
-**Stand: Version 0.2** (Bau-Schritte 3 bis 5 von Version 1, dazu Einstellungsfenster und manueller Modus)
+**Stand: Version 0.3** (Bau-Schritte 3 bis 5 von Version 1, dazu Einstellungsfenster und manueller Modus)
 
 Auf YouTube:
 
@@ -11,7 +11,9 @@ Auf YouTube:
 - Schaltet die Werbung stumm und stellt danach den Ton wieder her, wie er vorher war.
 - Lässt die YouTube-Steuerung und den „Überspringen"-Knopf frei.
 - Fünf Kartentypen: Hook and reveal, Find the error, Fill the gap, Estimate, Spot the variables.
+- Bei langen Werbungen: Nach dem Beantworten erscheint „Next card", die nächste Karte kommt sofort, die Werbung läuft weiter.
 - Nach der Werbung wartet das Video. „Keep learning" und „Back to video" sind gleich groß und sofort klickbar.
+- Die Schriftgröße passt sich dem Player an. „Next card" und der Werbebalken bleiben immer sichtbar.
 
 Kartenauswahl:
 
@@ -39,7 +41,9 @@ Einmalig:
 4. **Entpackte Erweiterung laden** klicken und im entpackten Ordner den Unterordner **`extension`** auswählen.
 5. Ein YouTube-Video mit Werbung öffnen.
 
-Nach einem Update: Schritte 1 und 2 wiederholen, den alten Ordner ersetzen und in `chrome://extensions` bei der Extension auf den runden Pfeil (Neu laden) klicken.
+Nach einem Update: Schritte 1 und 2 wiederholen, den alten Ordner ersetzen, in `chrome://extensions` bei der Extension auf den runden Pfeil (Neu laden) klicken und die YouTube-Seite neu laden. Welche Version geladen ist, steht dort neben dem Namen.
+
+Wichtig, sonst gehen Streak und Lernverlauf verloren: Der Ordner muss immer am selben Ort liegen und gleich heißen, und die Extension wird nur neu geladen, nie entfernt.
 
 **Es erscheint keine Karte?**
 
