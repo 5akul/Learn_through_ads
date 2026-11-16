@@ -3,17 +3,31 @@
 Chrome-Extension, die YouTube-Werbepausen in kurze Lernkarten für Cambridge AS/A Level verwandelt.
 Die Werbung läuft normal weiter, nur stumm. Nichts wird blockiert oder übersprungen.
 
-**Stand: Version 0.1** (Bau-Schritte 3 und 4 von Version 1)
+**Stand: Version 0.2** (Bau-Schritte 3 bis 5 von Version 1, dazu Einstellungsfenster und manueller Modus)
 
-- Erkennt, wann auf YouTube eine Werbung läuft, und zeigt eine Lernkarte über dem linken Teil des Players.
+Auf YouTube:
+
+- Erkennt, wann eine Werbung läuft, und zeigt eine Lernkarte über dem linken Teil des Players.
 - Schaltet die Werbung stumm und stellt danach den Ton wieder her, wie er vorher war.
 - Lässt die YouTube-Steuerung und den „Überspringen"-Knopf frei.
 - Fünf Kartentypen: Hook and reveal, Find the error, Fill the gap, Estimate, Spot the variables.
 - Nach der Werbung wartet das Video. „Keep learning" und „Back to video" sind gleich groß und sofort klickbar.
-- Speichert lokal im Browser, welche Karte wann gezeigt und wie beantwortet wurde, sowie die Daumen-Bewertungen. Nichts verlässt das Gerät.
-- Kartenauswahl: keine Karte zweimal am Tag, kein Kartentyp zweimal hintereinander, wichtige Prüfungsthemen öfter.
 
-Noch nicht drin: Einstellungsfenster (Kapitel wählen, Prüfungsmodus), Wiederholungen nach 1/3/7/21 Tagen, manueller Modus, Web Store.
+Kartenauswahl:
+
+- 50 % aus dem aktuellen Kapitel, 25 % Wiederholungen falsch beantworteter Karten (nach 1, 3, 7 und 21 Tagen), 25 % Zufall aus allen Fächern.
+- Keine Karte zweimal am Tag, kein Kartentyp zweimal hintereinander, wichtige Prüfungsthemen öfter.
+
+Klick auf das Extension-Symbol (Einstellungsfenster):
+
+- **Current chapter:** aktuelles Kapitel pro Fach wählen.
+- **Exam mode:** Nach einer Werbung läuft das Video erst nach einer selbst gewählten Zahl richtiger Karten weiter. Jederzeit dort wieder abschaltbar.
+- **Practice 10 cards now:** manueller Modus, zehn Karten am Stück ohne YouTube.
+- Zeigt Streak und die Antworten von heute.
+
+Gespeichert wird nur lokal im Browser: welche Karte wann gezeigt und wie beantwortet wurde, die Daumen-Bewertungen und die Einstellungen. Nichts verlässt das Gerät.
+
+Noch nicht drin: mehr Prüfungsfächer-Karten in den 8 Wochen vor der Prüfung, Tagesziel, Web Store.
 
 ## Ausprobieren auf dem Chromebook
 

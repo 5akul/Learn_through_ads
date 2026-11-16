@@ -12,12 +12,55 @@
     return d.getTime();
   }
 
-  // cards:  all loaded cards
-  // events: the local history, e.g. { type: "show", id, t } and { type: "answer", id, t, ok, ms }
-  // Rules: no card twice on the same day, no card type twice in a row.
-  // If the rules leave nothing over (few cards), they are relaxed one by one.
-  LTA.pickCard = function (cards, events, now, rand = Math.random) {
+  const DAY = 24 * 3600 * 1000;
+  // A card answered wrong comes back after 1 day, then 3, 7 and 21 days.
+  // Each correct answer moves it one step on; a wrong answer starts again at 1 day.
+  const INTERVALS = [1, 3, 7, 21];
+
+  // Which cards are due for repetition right now. Returns a Set of card ids.
+  // events must be in time order (they are, because they are only ever appended).
+  LTA.dueCardIds = function (events, now) {
+    const state = new Map(); // card id -> { step, dueAt }
+    for (const e of events) {
+      if (e.type !== "answer" || typeof e.ok !== "boolean") continue;
+      const s = state.get(e.id);
+      if (!e.ok) {
+        state.set(e.id, { step: 0, dueAt: startOfDay(e.t) + INTERVALS[0] * DAY });
+      } else if (s && e.t >= s.dueAt) {
+        // Correct, and it was due: move one step on, or finish after the last step.
+        const step = s.step + 1;
+        if (step >= INTERVALS.length) state.delete(e.id);
+        else state.set(e.id, { step, dueAt: startOfDay(e.t) + INTERVALS[step] * DAY });
+      }
+    }
+    const due = new Set();
+    for (const [id, s] of state) if (now >= s.dueAt) due.add(id);
+    return due;
+  };
+
+  function weightedPick(pool, rand) {
+    const total = pool.reduce((sum, c) => sum + (WEIGHT[c.exam_weight] || 1), 0);
+    let r = rand() * total;
+    for (const c of pool) {
+      r -= WEIGHT[c.exam_weight] || 1;
+      if (r < 0) return c;
+    }
+    return pool[pool.length - 1];
+  }
+
+  // cards:    all loaded cards
+  // events:   the local history, e.g. { type: "show", id, t } and { type: "answer", id, t, ok, ms }
+  // settings: { currentChapter: { psychology: 4, ... } }
+  //
+  // The mix: 50 % cards from the current chapter, 25 % repetitions of cards answered wrong,
+  //          25 % anything from all subjects. An empty group passes its share on to the next one.
+  // Rules:   no card twice on the same day, no card type twice in a row.
+  //          If the rules leave nothing over (few cards), they are relaxed one by one.
+  LTA.pickCard = function (cards, events, now, settings, rand) {
+    settings = settings || {};
+    rand = rand || Math.random;
     if (!cards.length) return null;
+
     const today = startOfDay(now);
     const shownToday = new Set(
       events.filter((e) => e.type === "show" && e.t >= today).map((e) => e.id)
@@ -31,25 +74,29 @@
       }
     }
 
-    const tries = [
+    const current = settings.currentChapter || {};
+    const due = LTA.dueCardIds(events, now);
+    const groups = {
+      fresh: cards.filter((c) => current[c.subject] === c.chapter),
+      review: cards.filter((c) => due.has(c.id)),
+      any: cards,
+    };
+    const roll = rand();
+    const order = roll < 0.5 ? ["fresh", "review", "any"] : roll < 0.75 ? ["review", "fresh", "any"] : ["any"];
+
+    const rules = [
       (c) => !shownToday.has(c.id) && c.type !== lastType,
       (c) => !shownToday.has(c.id),
       (c) => c.type !== lastType,
       () => true,
     ];
-    let pool = [];
-    for (const rule of tries) {
-      pool = cards.filter(rule);
-      if (pool.length) break;
+    for (const rule of rules) {
+      for (const name of order) {
+        const pool = groups[name].filter(rule);
+        if (pool.length) return weightedPick(pool, rand);
+      }
     }
-
-    const total = pool.reduce((sum, c) => sum + (WEIGHT[c.exam_weight] || 1), 0);
-    let r = rand() * total;
-    for (const c of pool) {
-      r -= WEIGHT[c.exam_weight] || 1;
-      if (r < 0) return c;
-    }
-    return pool[pool.length - 1];
+    return null;
   };
 
   // Number of days in a row (ending today or yesterday) with at least one answered card.

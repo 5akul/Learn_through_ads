@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Practice · Learn Through Ads</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; min-height: 100vh; background: #0f0f0f; color: #f1f1f1; font: 16px/1.45 Roboto, Arial, sans-serif; padding: 32px 16px; }
+  main { max-width: 680px; margin: 0 auto; }
+  h1 { font-size: 20px; margin: 0 0 4px; }
+  .sub { color: #9a9a9a; font-size: 14px; margin: 0 0 20px; }
+  #stage { min-height: 300px; }
+  .summary { background: #1c1c1c; border-radius: 14px; padding: 28px; text-align: center; }
+  .summary .big { font-size: 40px; font-weight: 700; }
+  .summary p { color: #9a9a9a; margin: 6px 0 20px; }
+  .buttons { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .btn { padding: 12px; border: 0; border-radius: 8px; font: inherit; font-weight: 600; cursor: pointer; background: #3a3a3a; color: #f1f1f1; }
+  .btn.primary { background: #f1f1f1; color: #0f0f0f; }
+</style>
+</head>
+<body>
+  <main>
+    <h1>Practice</h1>
+    <p class="sub" id="sub">Ten cards in a row, no YouTube needed.</p>
+    <div id="stage"></div>
+  </main>
+  <script src="selection.js"></script>
+  <script src="storage.js"></script>
+  <script src="overlay.js"></script>
+  <script src="practice.js"></script>
+</body>
+</html>

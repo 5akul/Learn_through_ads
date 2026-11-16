@@ -230,6 +230,136 @@ function makeVideo() {
     await closeCard();
   });
 
+  // ---- Exam mode, settings window, manual mode
+  const reset = (settings = {}) =>
+    worker.evaluate((settings) => chrome.storage.local.set({ events: [], ratings: {}, settings }), settings);
+  const getSettings = async () => (await worker.evaluate(() => chrome.storage.local.get("settings"))).settings;
+  const extensionUrl = (file) => worker.url().replace("background.js", file);
+
+  // Answers whatever card is on screen correctly, by looking the card up in the card files.
+  const answerCorrectly = async (scope) => {
+    const hook = await scope.locator(".hook").textContent();
+    const card = allCards.find((c) => (c.type === "cloze" ? c.hook.replace("____", "______") : c.hook) === hook);
+    assert.ok(card, "card on screen not found in the card files: " + hook);
+    if (card.type === "cloze") {
+      await scope.locator(".buttons .btn", { hasText: new RegExp(`^${card.options[0]}$`) }).click();
+    } else if (card.type === "find_error") {
+      await scope.locator(".code button").nth(card.error_line - 1).click();
+    } else if (card.type === "estimate") {
+      await scope.locator("input[type=range]").fill(String(card.estimate.correct));
+      await scope.locator("text=Lock in").click();
+    } else {
+      await scope.locator("button:has-text('Show answer'):not([disabled])").click({ timeout: 6000 });
+      await scope.locator("text=I knew it").click();
+    }
+    return card;
+  };
+
+  await step("exam mode: the video waits until enough cards are correct", async () => {
+    await reset({ minCorrect: 2 });
+    await setAd(true);
+    await overlay.waitFor();
+    await setAd(false);
+    const back = overlay.locator(".footer .btn", { hasText: "Back to video" });
+    await back.waitFor();
+    assert.equal(await back.textContent(), "Back to video · 2 more correct");
+    assert.equal(await back.isDisabled(), true);
+    await page.waitForTimeout(3300); // after the autoplay guard: play must still be held back
+    await page.evaluate(() => document.querySelector("video").play());
+    await page.waitForTimeout(300);
+    assert.equal((await vid()).paused, true, "video must stay paused in exam mode");
+    assert.equal(await overlay.count(), 1, "card must stay open in exam mode");
+
+    await answerCorrectly(overlay);
+    assert.equal(await back.textContent(), "Back to video · 1 more correct");
+    await overlay.locator("text=Next card").click();
+    await page.waitForTimeout(300);
+    await answerCorrectly(overlay);
+    assert.equal(await back.textContent(), "Back to video");
+    assert.equal(await back.isDisabled(), false);
+    if (shotsDir) await page.screenshot({ path: path.join(shotsDir, "3-exam-mode-done.png") });
+    await back.click();
+    await overlay.waitFor({ state: "detached" });
+    await page.waitForFunction(() => !document.querySelector("video").paused);
+  });
+
+  await step("exam mode can be switched off at any time, even while it holds the video", async () => {
+    await reset({ minCorrect: 3 });
+    await setAd(true);
+    await overlay.waitFor();
+    await setAd(false);
+    const back = overlay.locator(".footer .btn", { hasText: "Back to video" });
+    await back.waitFor();
+    assert.equal(await back.isDisabled(), true);
+    if (shotsDir) await page.screenshot({ path: path.join(shotsDir, "4-exam-mode-locked.png") });
+    await worker.evaluate(() => chrome.storage.local.set({ settings: { minCorrect: 0 } }));
+    await page.waitForFunction(() => {
+      const buttons = document.querySelector("#lta-overlay").shadowRoot.querySelectorAll(".footer .btn");
+      return [...buttons].every((b) => !b.disabled);
+    });
+    await back.click();
+    await overlay.waitFor({ state: "detached" });
+  });
+
+  await step("settings window: chapter and exam mode are saved", async () => {
+    await reset({});
+    const popup = await context.newPage();
+    popup.on("pageerror", (e) => errors.push("popup: " + e.message));
+    await popup.setViewportSize({ width: 320, height: 520 });
+    await popup.goto(extensionUrl("popup.html"));
+    await popup.locator("select").first().waitFor();
+    const subjects = new Set(allCards.map((c) => c.subject));
+    assert.equal(await popup.locator("select").count(), subjects.size, "one chapter menu per subject with cards");
+    const psych = allCards.find((c) => c.subject === "psychology");
+    await popup.locator("select[data-subject=psychology]").selectOption(String(psych.chapter));
+    await popup.locator("#examCount").fill("4");
+    await popup.locator("#examOn").check();
+    await popup.waitForTimeout(200);
+    let s = await getSettings();
+    assert.equal(s.currentChapter.psychology, psych.chapter);
+    assert.equal(s.minCorrect, 4);
+    if (shotsDir) await popup.screenshot({ path: path.join(shotsDir, "5-settings.png") });
+    await popup.locator("#examOn").uncheck();
+    await popup.locator("select[data-subject=psychology]").selectOption("");
+    await popup.waitForTimeout(200);
+    s = await getSettings();
+    assert.equal(s.minCorrect, 0);
+    assert.equal(s.examCount, 4, "the number is remembered for next time");
+    assert.equal("psychology" in s.currentChapter, false);
+    await popup.close();
+  });
+
+  await step("manual mode: a round of cards without YouTube, no card twice, with a result", async () => {
+    await reset({});
+    const practice = await context.newPage();
+    practice.on("pageerror", (e) => errors.push("practice: " + e.message));
+    await practice.goto(extensionUrl("practice.html"));
+    const box = practice.locator("#lta-overlay");
+    await box.waitFor();
+    const total = Math.min(10, allCards.length);
+    const seen = new Set();
+    for (let i = 1; i <= total; i++) {
+      await practice.waitForFunction((n) =>
+        document.querySelector("#lta-overlay").shadowRoot.querySelector(".adtime").textContent.startsWith(`Card ${n} of`), i);
+      assert.equal(await box.locator(".adtime").textContent(), `Card ${i} of ${total}`);
+      if (i === 2 && shotsDir) await practice.screenshot({ path: path.join(shotsDir, "6-practice.png") });
+      if (i === 1) {
+        seen.add(await box.locator(".hook").textContent()); // skip the first card without answering
+      } else {
+        seen.add((await answerCorrectly(box)).hook);
+      }
+      await box.locator(".footer .btn").click();
+    }
+    assert.equal(seen.size, total, "no card twice in one round");
+    await practice.locator(".summary").waitFor();
+    assert.equal(await practice.locator(".summary .big").textContent(), `${total - 1} of ${total}`);
+    assert.match(await practice.locator(".summary p").textContent(), /1 skipped/);
+    if (shotsDir) await practice.screenshot({ path: path.join(shotsDir, "7-practice-result.png") });
+    const { events } = await worker.evaluate(() => chrome.storage.local.get("events"));
+    assert.equal(events.filter((e) => e.type === "answer").length, total - 1, "answers count for streak and repetition");
+    await practice.close();
+  });
+
   assert.deepEqual(errors, [], "page errors: " + errors.join("; "));
   await context.close();
   console.log(`\nall ${steps.length} browser tests passed`);

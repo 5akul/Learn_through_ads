@@ -20,6 +20,7 @@
       border-radius: 0 0 14px 0; box-shadow: 4px 4px 24px rgba(0, 0, 0, 0.5);
       font: 400 clamp(14px, 3.6cqw, 22px)/1.4 Roboto, Arial, sans-serif;
     }
+    .panel.page { height: auto; min-height: 18em; border-radius: 14px; }
     .top { display: flex; justify-content: space-between; gap: 0.5em; font-size: 0.7em; color: #9a9a9a; }
     .hook { font-size: 1.15em; font-weight: 600; line-height: 1.35; }
     .hint { font-size: 0.85em; color: #9a9a9a; }
@@ -30,6 +31,7 @@
     }
     .btn:hover:not(:disabled) { filter: brightness(1.15); }
     .btn:disabled { cursor: default; }
+    .footer .btn:disabled { opacity: 0.55; }
     .btn.primary { background: #f1f1f1; color: #0f0f0f; }
     .btn.ok { background: #3ea66b; color: #fff; }
     .btn.bad { background: #d9534f; color: #fff; }
@@ -81,20 +83,25 @@
 
   class Overlay {
     // handlers: { onAnswer(card, ok, ms), onRate(card, value), onNext(), onBack() }
-    constructor(player, handlers) {
+    // options.layout: "player" (on top of the YouTube player) or "page" (fills its box, for practice mode)
+    constructor(player, handlers, options = {}) {
       this.handlers = handlers;
-      this.mode = "ad"; // "ad" while the ad runs, "after" once it has finished
+      // "ad" while the ad runs, "after" once it has finished, "practice" in the manual mode
+      this.mode = options.layout === "page" ? "practice" : "ad";
+      this.lockRemaining = 0; // exam mode: correct answers still needed before the video continues
       this.timers = [];
 
       this.host = document.createElement("div");
       this.host.id = "lta-overlay";
       // Covers the left part of the player and leaves the bottom free,
       // so YouTube's controls and the "Skip" button stay visible and clickable.
-      const style = {
-        position: "absolute", top: "0", left: "0", bottom: "56px",
-        width: "clamp(300px, 58%, 760px)", "max-width": "100%",
-        "z-index": "1000", "container-type": "inline-size",
-      };
+      const style = options.layout === "page"
+        ? { position: "relative", display: "block", width: "100%", "container-type": "inline-size" }
+        : {
+            position: "absolute", top: "0", left: "0", bottom: "56px",
+            width: "clamp(300px, 58%, 760px)", "max-width": "100%",
+            "z-index": "1000", "container-type": "inline-size",
+          };
       for (const [k, v] of Object.entries(style)) this.host.style.setProperty(k, v, "important");
 
       // A click on the player normally pauses the video, and keys like space or arrows control it.
@@ -106,7 +113,7 @@
       const shadow = this.host.attachShadow({ mode: "open" });
       const styleEl = document.createElement("style");
       styleEl.textContent = CSS;
-      this.panel = el("div", "panel");
+      this.panel = el("div", options.layout === "page" ? "panel page" : "panel");
       shadow.append(styleEl, this.panel);
       player.append(this.host);
     }
@@ -126,6 +133,12 @@
       if (this.footer) this.renderFooter();
     }
 
+    // Exam mode: how many correct answers are still missing. 0 = the video may continue.
+    setLock(remaining) {
+      this.lockRemaining = Math.max(0, remaining);
+      if (this.footer) this.renderFooter();
+    }
+
     setAdProgress(fraction, secondsLeft) {
       if (this.mode !== "ad" || !this.barFill) return;
       this.barFill.style.width = Math.min(100, Math.max(0, fraction * 100)) + "%";
@@ -135,6 +148,7 @@
     showCard(card, info = {}) {
       this.clearTimers();
       this.card = card;
+      this.info = info;
       this.answered = false;
       this.shownAt = Date.now();
       this.panel.replaceChildren();
@@ -305,11 +319,26 @@
         this.barFill = el("div");
         this.adTime = el("div", "adtime", "Ad muted");
         this.footer.append(el("div", "bar", this.barFill), this.adTime);
+      } else if (this.mode === "practice") {
+        const pos = this.info && this.info.position;
+        if (pos) this.footer.append(el("div", "adtime", `Card ${pos.index} of ${pos.total}`));
+        const last = pos && pos.index >= pos.total;
+        this.footer.append(el("div", "buttons",
+          button("btn wide", last ? "Finish" : "Next card", () => this.handlers.onNext())
+        ));
       } else {
         // Same size, same row, both clickable right away. No tricks.
+        // Only in exam mode, which the user switched on themselves, "Back to video" waits for the goal.
+        const locked = this.lockRemaining > 0;
+        const back = button("btn", locked ? `Back to video · ${this.lockRemaining} more correct` : "Back to video",
+          () => this.handlers.onBack());
+        back.disabled = locked;
+        if (locked) {
+          this.footer.append(el("div", "adtime", "Exam mode is on. You can switch it off in the extension's settings."));
+        }
         this.footer.append(el("div", "buttons",
-          button("btn primary", "Keep learning, one more card?", () => this.handlers.onNext()),
-          button("btn", "Back to video", () => this.handlers.onBack())
+          button("btn primary", locked ? "Next card" : "Keep learning, one more card?", () => this.handlers.onNext()),
+          back
         ));
       }
     }

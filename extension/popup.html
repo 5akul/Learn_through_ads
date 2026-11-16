@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Learn Through Ads</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; width: 320px; padding: 14px; background: #0f0f0f; color: #f1f1f1; font: 14px/1.4 Roboto, Arial, sans-serif; }
+  h1 { font-size: 16px; margin: 0; }
+  .stats { color: #9a9a9a; font-size: 12px; margin: 2px 0 14px; }
+  h2 { font-size: 12px; font-weight: 600; color: #9a9a9a; text-transform: uppercase; letter-spacing: 0.04em; margin: 16px 0 6px; }
+  .row { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 6px; }
+  select, input[type=number] { background: #1c1c1c; color: #f1f1f1; border: 1px solid #3a3a3a; border-radius: 6px; padding: 5px 6px; font: inherit; }
+  select { max-width: 170px; }
+  input[type=number] { width: 52px; }
+  label.check { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+  .hint { color: #9a9a9a; font-size: 12px; margin-top: 4px; }
+  button.primary { width: 100%; margin-top: 16px; padding: 10px; border: 0; border-radius: 8px; background: #f1f1f1; color: #0f0f0f; font: inherit; font-weight: 600; cursor: pointer; }
+  .foot { color: #777; font-size: 11px; margin-top: 12px; }
+</style>
+</head>
+<body>
+  <h1>Learn Through Ads</h1>
+  <div class="stats" id="stats">&nbsp;</div>
+
+  <h2>Current chapter</h2>
+  <div id="chapters"></div>
+  <div class="hint">Half of your cards come from the chapter you pick here.</div>
+
+  <h2>Exam mode</h2>
+  <label class="check">
+    <input type="checkbox" id="examOn">
+    <span>After an ad, the video continues only after</span>
+    <input type="number" id="examCount" min="1" max="20" value="3">
+    <span>correct cards</span>
+  </label>
+  <div class="hint">You can switch this off here at any time.</div>
+
+  <button class="primary" id="practice">Practice 10 cards now</button>
+  <div class="foot">Your answers are stored only in this browser.</div>
+
+  <script src="selection.js"></script>
+  <script src="storage.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

@@ -21,6 +21,8 @@
   let progressTimer = null;
   let savedMuted = null;
   let guardUntil = 0;
+  let settings = { currentChapter: {}, minCorrect: 0 };
+  let correctThisBreak = 0;
   const watchedVideos = new WeakSet();
 
   function getVideo() {
@@ -41,10 +43,27 @@
   }
 
   async function pickNext() {
-    const [list, events] = await Promise.all([loadCards(), LTA.store.getEvents()]);
+    const [list, events, loaded] = await Promise.all([loadCards(), LTA.store.getEvents(), LTA.store.getSettings()]);
+    settings = loaded;
     const now = Date.now();
-    return { card: LTA.pickCard(list, events, now), streak: LTA.streak(events, now) };
+    return { card: LTA.pickCard(list, events, now, settings), streak: LTA.streak(events, now) };
   }
+
+  // ---- Exam mode: the video only continues after a number of correct answers.
+  // The user switches this on themselves in the settings and can switch it off there at any time.
+  function lockRemaining() {
+    return Math.max(0, (Number(settings.minCorrect) || 0) - correctThisBreak);
+  }
+
+  function updateLock() {
+    if (overlay) overlay.setLock(lockRemaining());
+  }
+
+  chrome.storage.onChanged.addListener((changes, area) => {
+    if (area !== "local" || !changes.settings) return;
+    settings = { currentChapter: {}, minCorrect: 0, ...changes.settings.newValue };
+    updateLock();
+  });
 
   function show(card, streak) {
     overlay.showCard(card, { streak });
@@ -54,6 +73,8 @@
   const handlers = {
     onAnswer(card, ok, ms) {
       LTA.store.addEvent({ type: "answer", id: card.id, t: Date.now(), ok, ms });
+      if (ok) correctThisBreak++;
+      updateLock();
     },
     onRate(card, value) {
       LTA.store.setRating(card.id, value);
@@ -63,6 +84,7 @@
       if (card && overlay) show(card, streak);
     },
     onBack() {
+      if (lockRemaining() > 0) return;
       closeOverlay();
       const video = getVideo();
       if (video) video.play().catch(() => {});
@@ -100,7 +122,9 @@
     }
     const { card, streak } = await pickNext();
     if (!card || !inAd || overlay || !player) return;
+    correctThisBreak = 0;
     overlay = new LTA.Overlay(player, handlers);
+    updateLock();
     show(card, streak);
   }
 
@@ -148,8 +172,8 @@
 
     video.addEventListener("play", () => {
       if (!overlay || inAd) return;
-      if (Date.now() < guardUntil) {
-        video.pause(); // YouTube's own autoplay after the ad
+      if (Date.now() < guardUntil || lockRemaining() > 0) {
+        video.pause(); // YouTube's own autoplay after the ad, or exam mode not done yet
       } else {
         closeOverlay(); // the user pressed play in YouTube: they chose the video
       }

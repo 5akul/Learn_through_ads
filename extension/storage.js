@@ -26,6 +26,19 @@
       });
     },
 
+    // settings: { currentChapter: { subject: chapter number }, minCorrect: number (0 = exam mode off) }
+    async getSettings() {
+      const { settings = {} } = await chrome.storage.local.get("settings");
+      return { currentChapter: {}, minCorrect: 0, ...settings };
+    },
+
+    setSettings(patch) {
+      return serial(async () => {
+        const settings = await LTA.store.getSettings();
+        await chrome.storage.local.set({ settings: { ...settings, ...patch } });
+      });
+    },
+
     // value: "up", "neutral" or "down". The latest rating per card wins.
     setRating(cardId, value) {
       return serial(async () => {
