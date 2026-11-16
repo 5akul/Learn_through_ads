@@ -1,15 +1,16 @@
 # Learn Through Ads
 
 Chrome-Extension, die YouTube-Werbepausen in kurze Lernkarten für Cambridge AS/A Level verwandelt.
-Die Werbung läuft normal weiter, nur stumm. Nichts wird blockiert oder übersprungen.
+Die Werbung läuft normal weiter, nur stumm und von der Karte verdeckt. Nichts wird blockiert oder übersprungen.
 
-**Stand: Version 0.3** (Bau-Schritte 3 bis 5 von Version 1, dazu Einstellungsfenster und manueller Modus)
+**Stand: Version 0.4** (Bau-Schritte 3 bis 5 von Version 1, dazu Einstellungsfenster und manueller Modus)
 
 Auf YouTube:
 
-- Erkennt, wann eine Werbung läuft, und zeigt eine Lernkarte über dem linken Teil des Players.
+- Erkennt, wann eine Werbung läuft, und legt eine Lernkarte deckend über den ganzen Player, auch im Vollbild.
 - Schaltet die Werbung stumm und stellt danach den Ton wieder her, wie er vorher war.
-- Lässt die YouTube-Steuerung und den „Überspringen"-Knopf frei.
+- Überspringt nie selbst. Sobald die Werbung überspringbar ist, zeigt die Karte einen Hinweis und lässt genau über dem „Überspringen"-Knopf von YouTube eine Öffnung frei.
+- „Hide card" verkleinert die Karte zu einem kleinen Knopf und gibt den Player frei, „Show card" holt sie zurück.
 - Fünf Kartentypen: Hook and reveal, Find the error, Fill the gap, Estimate, Spot the variables.
 - Bei langen Werbungen: Nach dem Beantworten erscheint „Next card", die nächste Karte kommt sofort, die Werbung läuft weiter.
 - Nach der Werbung wartet das Video. „Keep learning" und „Back to video" sind gleich groß und sofort klickbar.
@@ -49,7 +50,7 @@ Wichtig, sonst gehen Streak und Lernverlauf verloren: Der Ordner muss immer am s
 
 - Läuft ein Werbeblocker oder YouTube Premium? Dann gibt es keine Werbung, also auch keine Karten.
 - Fehlt der Schalter „Entwicklermodus"? Dann blockiert das Schulkonto Extensions. Ein privates Google-Konto auf dem Chromebook ist nötig.
-- YouTube ändert seine Seite gelegentlich. Die Werbeerkennung steht oben in `extension/content.js` (Klasse `ad-showing` am Element `#movie_player`).
+- YouTube ändert seine Seite gelegentlich. Die Werbeerkennung steht oben in `extension/content.js` (Klasse `ad-showing` am Element `#movie_player`), ebenso die Namen des „Überspringen"-Knopfs (`SKIP_BUTTON_SELECTORS`).
 
 ## Ordner
 

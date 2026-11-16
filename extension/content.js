@@ -13,6 +13,14 @@
   // we pause it again, so the choice "keep learning / back to video" stays open.
   const AUTOPLAY_GUARD_MS = 3000;
   const AD_END_DELAY_MS = 250;
+  // Names YouTube has used for its "Skip ad" button. Checked in this order.
+  const SKIP_BUTTON_SELECTORS = [
+    ".ytp-skip-ad-button",
+    ".ytp-ad-skip-button-modern",
+    ".ytp-ad-skip-button",
+    ".ytp-ad-skip-button-container button",
+    'button[class*="skip"]',
+  ];
 
   let player = null;
   let observer = null;
@@ -94,6 +102,24 @@
     },
   };
 
+  // YouTube's Skip button, but only once it can really be clicked.
+  // The extension never clicks it. It only tells the user it is there and keeps it reachable.
+  function findSkipButton() {
+    if (!player) return null;
+    for (const selector of SKIP_BUTTON_SELECTORS) {
+      for (const el of player.querySelectorAll(selector)) {
+        if (el.disabled || el.getAttribute("aria-disabled") === "true") continue;
+        const box = el.getBoundingClientRect();
+        if (box.width < 20 || box.height < 10) continue;
+        const visible = typeof el.checkVisibility === "function"
+          ? el.checkVisibility({ checkOpacity: true, checkVisibilityCSS: true })
+          : getComputedStyle(el).visibility !== "hidden";
+        if (visible) return el;
+      }
+    }
+    return null;
+  }
+
   function closeOverlay() {
     if (overlay) overlay.destroy();
     overlay = null;
@@ -143,6 +169,7 @@
     stopProgress();
     restoreSound();
     if (!overlay) return;
+    overlay.setSkipButton(null);
     overlay.setMode("after");
     const video = getVideo();
     guardUntil = Date.now() + AUTOPLAY_GUARD_MS;
@@ -157,6 +184,7 @@
     progressTimer = setInterval(() => {
       const video = getVideo();
       if (!overlay || !video) return;
+      overlay.setSkipButton(findSkipButton());
       if (Number.isFinite(video.duration) && video.duration > 0) {
         overlay.setAdProgress(
           video.currentTime / video.duration,

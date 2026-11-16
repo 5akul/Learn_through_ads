@@ -73,13 +73,53 @@ function makeVideo() {
     if (shotsDir) await page.screenshot({ path: path.join(shotsDir, "1-during-ad.png") });
   });
 
-  await step("YouTube's bottom bar and Skip button stay free", async () => {
+  const showSkip = (on) => page.evaluate((on) =>
+    (document.querySelector(".ytp-skip-ad-button").style.display = on ? "block" : "none"), on);
+  const hostStyle = (prop) => page.evaluate((prop) =>
+    getComputedStyle(document.querySelector("#lta-overlay"))[prop], prop);
+
+  await step("the card covers the whole player and nothing shows through", async () => {
     const o = await overlay.boundingBox();
     const p = await page.locator("#movie_player").boundingBox();
+    for (const k of ["x", "y", "width", "height"]) assert.ok(Math.abs(o[k] - p[k]) <= 1, `${k}: card ${o[k]}, player ${p[k]}`);
+    const background = await page.evaluate(() =>
+      getComputedStyle(document.querySelector("#lta-overlay").shadowRoot.querySelector(".panel")).backgroundColor);
+    assert.equal(background, "rgb(15, 15, 15)", "background must be solid");
+    assert.equal(await hostStyle("clipPath"), "none", "no opening while the ad cannot be skipped");
+    assert.equal(await overlay.locator(".skiphint").count(), 0);
+  });
+
+  await step("ad can be skipped: a hint appears and YouTube's Skip button is reachable", async () => {
+    await showSkip(true);
+    await overlay.locator(".skiphint").waitFor();
+    assert.match(await overlay.locator(".skiphint").textContent(), /You can skip this ad now/);
     const skip = await page.locator(".ytp-skip-ad-button").boundingBox();
-    assert.ok(o.y + o.height <= p.y + p.height - 56 + 1, "overlay covers the controls");
-    assert.ok(skip.x >= o.x + o.width, "overlay covers the Skip button");
-    await page.locator(".ytp-skip-ad-button").click(); // must be clickable, not hidden behind the card
+    const centre = [skip.x + skip.width / 2, skip.y + skip.height / 2];
+    const hit = await page.evaluate(([x, y]) => document.elementFromPoint(x, y).className, centre);
+    assert.equal(hit, "ytp-skip-ad-button", "the opening must sit exactly over the Skip button");
+    await page.mouse.click(...centre); // a real click, by the user, on YouTube's own button
+    assert.equal(await page.evaluate(() => window.skipClicks), 1);
+    assert.equal((await vid()).paused, false);
+    // just outside the opening the card is still there
+    const outside = await page.evaluate(([x, y]) => document.elementFromPoint(x, y).id, [skip.x - 30, skip.y - 30]);
+    assert.equal(outside, "lta-overlay");
+    if (shotsDir) await page.screenshot({ path: path.join(shotsDir, "1b-skippable.png") });
+    await showSkip(false);
+    await page.waitForFunction(() => getComputedStyle(document.querySelector("#lta-overlay")).clipPath === "none");
+    assert.equal(await overlay.locator(".skiphint").count(), 0);
+  });
+
+  await step("'Hide card' gives the player back, 'Show card' brings the card back", async () => {
+    const p = await page.locator("#movie_player").boundingBox();
+    await overlay.locator("text=Hide card").click();
+    let o = await overlay.boundingBox();
+    assert.ok(o.width < 200 && o.height < 60, `hidden card is ${o.width}x${o.height}`);
+    assert.equal((await vid()).muted, true, "the ad stays muted");
+    if (shotsDir) await page.screenshot({ path: path.join(shotsDir, "1c-hidden.png") });
+    await overlay.locator("text=Show card").click();
+    o = await overlay.boundingBox();
+    assert.ok(Math.abs(o.width - p.width) <= 1 && Math.abs(o.height - p.height) <= 1);
+    assert.equal(await overlay.locator(".hook").isVisible(), true);
   });
 
   await step("clicking inside the card does not pause the video", async () => {

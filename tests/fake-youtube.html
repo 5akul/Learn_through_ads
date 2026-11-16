@@ -7,7 +7,7 @@
   <div id="movie_player" class="html5-video-player" style="position:relative;width:854px;height:480px;overflow:hidden">
     <video class="html5-main-video" src="/test-video.webm" autoplay loop style="width:100%;height:100%;display:block"></video>
     <div class="ytp-chrome-bottom" style="position:absolute;left:0;right:0;bottom:0;height:48px;background:rgba(0,0,0,.6);color:#fff;font-size:12px;padding:8px">YouTube controls</div>
-    <button class="ytp-skip-ad-button" style="position:absolute;right:12px;bottom:64px" onclick="event.stopPropagation()">Skip</button>
+    <button class="ytp-skip-ad-button" style="position:absolute;right:12px;bottom:64px;display:none;padding:10px 18px" onclick="event.stopPropagation(); window.skipClicks = (window.skipClicks || 0) + 1">Skip</button>
   </div>
   <script>
     // Like YouTube: a click on the player toggles play/pause.
