@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "cards": [
+    {
+      "id": "ec-09-001",
+      "subject": "economics",
+      "syllabus_code": "9708 4.5",
+      "chapter": 9,
+      "chapter_title": "Unemployment",
+      "type": "estimate",
+      "hook": "At the worst point of the Great Depression in 1933, what share of US workers had no job?",
+      "estimate": {
+        "min": 0,
+        "max": 50,
+        "correct": 25,
+        "tolerance": 3,
+        "unit": "%"
+      },
+      "answer": "About 25%, one worker in four. This is cyclical unemployment: demand collapsed, so firms cut jobs.",
+      "difficulty": 1,
+      "exam_weight": "medium",
+      "duration_seconds": 20
+    }
+  ]
+}

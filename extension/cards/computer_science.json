@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "cards": [
+    {
+      "id": "cs-11-001",
+      "subject": "computer_science",
+      "syllabus_code": "9618 11.2",
+      "chapter": 11,
+      "chapter_title": "Programming",
+      "type": "find_error",
+      "hook": "This should add up ten numbers. It outputs only the last one. Tap the broken line.",
+      "lines": [
+        "Total ← 0",
+        "FOR Count ← 1 TO 10",
+        "    INPUT Number",
+        "    Total ← Number",
+        "NEXT Count",
+        "OUTPUT Total"
+      ],
+      "error_line": 4,
+      "answer": "Line 4 overwrites Total every time. It must be Total ← Total + Number.",
+      "difficulty": 2,
+      "exam_weight": "high",
+      "duration_seconds": 25
+    },
+    {
+      "id": "cs-03-001",
+      "subject": "computer_science",
+      "syllabus_code": "9618 3.1",
+      "chapter": 3,
+      "chapter_title": "Hardware",
+      "type": "cloze",
+      "hook": "Your phone screen ignores a pen but reacts to your finger. That is a ____ touchscreen.",
+      "options": [
+        "capacitive",
+        "resistive"
+      ],
+      "answer": "Capacitive screens sense the change in the electric field caused by a conductor such as skin. Resistive screens react to pressure, so a pen works too.",
+      "difficulty": 1,
+      "exam_weight": "low",
+      "duration_seconds": 15
+    }
+  ]
+}

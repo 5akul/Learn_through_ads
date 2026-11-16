@@ -1,0 +1,176 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Card file (one file per subject)",
+  "type": "object",
+  "required": ["schema_version", "cards"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": 1,
+      "description": "Version of this format. Goes up only when the format itself changes."
+    },
+    "cards": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/card" }
+    }
+  },
+  "$defs": {
+    "card": {
+      "type": "object",
+      "required": [
+        "id",
+        "subject",
+        "syllabus_code",
+        "chapter",
+        "chapter_title",
+        "type",
+        "hook",
+        "answer",
+        "difficulty",
+        "exam_weight",
+        "duration_seconds"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z]{2}-[0-9]{2}-[0-9]{3}$",
+          "description": "Unique and never reused: subject shortcut, chapter, running number. Example: cs-03-001. Progress is stored under this id, so it must not change once a card is published."
+        },
+        "subject": {
+          "enum": ["computer_science", "mathematics", "economics", "psychology"]
+        },
+        "syllabus_code": {
+          "type": "string",
+          "minLength": 4,
+          "description": "Cambridge syllabus number plus the syllabus point, as written in the official syllabus. Example: '9618 3.1'."
+        },
+        "chapter": {
+          "type": "integer",
+          "minimum": 1,
+          "description": "Chapter number in class order. The 'current chapter' setting compares against this number."
+        },
+        "chapter_title": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Shown small and grey in the top line of the overlay."
+        },
+        "type": {
+          "enum": ["hook_reveal", "find_error", "cloze", "estimate", "variables"]
+        },
+        "hook": {
+          "type": "string",
+          "minLength": 10,
+          "maxLength": 280,
+          "description": "The first thing the user sees. Must catch within 3 seconds."
+        },
+        "answer": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 320,
+          "description": "The resolution or explanation shown after the user answered."
+        },
+        "source": {
+          "type": "string",
+          "description": "Optional. Study or reference, e.g. 'Milgram (1963)'."
+        },
+        "difficulty": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 3,
+          "description": "1 = recall, 2 = understand, 3 = apply."
+        },
+        "exam_weight": {
+          "enum": ["high", "medium", "low"],
+          "description": "How often and for how many marks the topic appears in past papers. Small fact topics are 'low', not deleted."
+        },
+        "duration_seconds": {
+          "type": "integer",
+          "minimum": 15,
+          "maximum": 30
+        },
+        "notes_link": {
+          "type": "string",
+          "format": "uri",
+          "description": "Optional. Opens the matching place in the notes ('more' button)."
+        }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "type": { "const": "find_error" } }, "required": ["type"] },
+          "then": {
+            "required": ["lines", "error_line"],
+            "properties": {
+              "lines": {
+                "type": "array",
+                "minItems": 2,
+                "maxItems": 8,
+                "items": { "type": "string" },
+                "description": "The code or calculation, one entry per line. Exactly one line contains the mistake."
+              },
+              "error_line": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 8,
+                "description": "Number of the wrong line, counting from 1."
+              }
+            }
+          }
+        },
+        {
+          "if": { "properties": { "type": { "const": "cloze" } }, "required": ["type"] },
+          "then": {
+            "required": ["options"],
+            "properties": {
+              "hook": {
+                "pattern": "____",
+                "description": "The definition, with ____ where the key term is missing."
+              },
+              "options": {
+                "type": "array",
+                "minItems": 2,
+                "maxItems": 2,
+                "items": { "type": "string" },
+                "description": "The FIRST option is always the correct one. The extension shuffles the two buttons."
+              }
+            }
+          }
+        },
+        {
+          "if": { "properties": { "type": { "const": "estimate" } }, "required": ["type"] },
+          "then": {
+            "required": ["estimate"],
+            "properties": {
+              "estimate": {
+                "type": "object",
+                "required": ["min", "max", "correct", "tolerance", "unit"],
+                "additionalProperties": false,
+                "properties": {
+                  "min": { "type": "number", "description": "Left end of the slider." },
+                  "max": { "type": "number", "description": "Right end of the slider." },
+                  "correct": { "type": "number", "description": "The real value." },
+                  "tolerance": {
+                    "type": "number",
+                    "minimum": 0,
+                    "description": "How far off still counts as right, in the same unit."
+                  },
+                  "unit": { "type": "string", "description": "Shown next to the number, e.g. '%'." }
+                }
+              }
+            }
+          }
+        },
+        {
+          "if": { "properties": { "type": { "const": "variables" } }, "required": ["type"] },
+          "then": {
+            "required": ["iv", "dv"],
+            "properties": {
+              "iv": { "type": "string", "description": "Independent variable of the study in the hook." },
+              "dv": { "type": "string", "description": "Dependent variable of the study in the hook." }
+            }
+          }
+        }
+      ],
+      "unevaluatedProperties": false
+    }
+  }
+}

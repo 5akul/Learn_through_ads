@@ -1,0 +1,19 @@
+<!doctype html>
+<!-- A tiny stand-in for a YouTube watch page, used only by tests/e2e.test.js.
+     It has the two things the extension relies on: #movie_player and the video inside it. -->
+<html>
+<head><meta charset="utf-8"><title>Fake YouTube</title></head>
+<body style="margin:0;background:#000;font-family:Arial">
+  <div id="movie_player" class="html5-video-player" style="position:relative;width:854px;height:480px;overflow:hidden">
+    <video class="html5-main-video" src="/test-video.webm" autoplay loop style="width:100%;height:100%;display:block"></video>
+    <div class="ytp-chrome-bottom" style="position:absolute;left:0;right:0;bottom:0;height:48px;background:rgba(0,0,0,.6);color:#fff;font-size:12px;padding:8px">YouTube controls</div>
+    <button class="ytp-skip-ad-button" style="position:absolute;right:12px;bottom:64px" onclick="event.stopPropagation()">Skip</button>
+  </div>
+  <script>
+    // Like YouTube: a click on the player toggles play/pause.
+    const player = document.getElementById("movie_player");
+    const video = player.querySelector("video");
+    player.addEventListener("click", () => (video.paused ? video.play() : video.pause()));
+  </script>
+</body>
+</html>

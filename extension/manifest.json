@@ -1,0 +1,17 @@
+{
+  "manifest_version": 3,
+  "name": "Learn Through Ads",
+  "version": "0.1.0",
+  "description": "Turns YouTube ad breaks into short Cambridge A-Level flashcards. The ad keeps playing, just muted.",
+  "permissions": ["storage"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://www.youtube.com/*"],
+      "js": ["selection.js", "storage.js", "overlay.js", "content.js"],
+      "run_at": "document_idle"
+    }
+  ]
+}

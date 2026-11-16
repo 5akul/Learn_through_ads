@@ -1,0 +1,21 @@
+name: Check cards and logic
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install jsonschema
+      - run: python3 tools/check_cards.py
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - run: node tests/unit.test.js
