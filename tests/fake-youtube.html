@@ -14,6 +14,8 @@
     const player = document.getElementById("movie_player");
     const video = player.querySelector("video");
     player.addEventListener("click", () => (video.paused ? video.play() : video.pause()));
+    // Like YouTube: the key "f" switches to fullscreen.
+    document.addEventListener("keydown", (e) => { if (e.key === "f") player.requestFullscreen(); });
   </script>
 </body>
 </html>

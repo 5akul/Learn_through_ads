@@ -3,7 +3,7 @@
 Chrome-Extension, die YouTube-Werbepausen in kurze Lernkarten für Cambridge AS/A Level verwandelt.
 Die Werbung läuft normal weiter, nur stumm und von der Karte verdeckt. Nichts wird blockiert oder übersprungen.
 
-**Stand: Version 0.5** (Bau-Schritte 3 bis 5 von Version 1, dazu Einstellungsfenster und manueller Modus)
+**Stand: Version 0.6** (Bau-Schritte 3 bis 5 von Version 1, dazu Einstellungsfenster und manueller Modus)
 
 Auf YouTube:
 
@@ -58,6 +58,7 @@ Wichtig, sonst gehen Streak und Lernverlauf verloren: Der Ordner muss immer am s
 |---|---|
 | `extension/` | Die Extension selbst. Diesen Ordner lädt Chrome. |
 | `extension/cards/` | Die Karten, eine Datei pro Fach (`computer_science.json`, `mathematics.json`, `economics.json`, `psychology.json`). |
+| `assets/icon-source.webp` | Originalbild des Icons (Brille). Daraus entstehen die Icons in `extension/icons/`. |
 | `card.schema.json` | Das Kartenformat. Jede Karte muss dazu passen. |
 | `tools/check_cards.py` | Prüft alle Karten gegen das Format. |
 | `tests/` | Automatische Tests (siehe unten). |

@@ -552,6 +552,43 @@ function makeVideo() {
     await page.setViewportSize({ width: 1000, height: 600 });
   });
 
+  await step("fullscreen: the card keeps the top free while Chrome shows its 'Press Esc' notice", async () => {
+    await reset({});
+    await setAd(true);
+    await overlay.waitFor();
+    const state = () => page.evaluate(() => {
+      const root = document.querySelector("#lta-overlay").shadowRoot;
+      const panel = root.querySelector(".panel");
+      const content = root.querySelector(".content");
+      return {
+        fullscreen: !!document.fullscreenElement,
+        free: panel.classList.contains("esc-space"),
+        top: root.querySelector(".top").getBoundingClientRect().top,
+        scrolls: content.scrollHeight > content.clientHeight,
+        font: parseFloat(getComputedStyle(panel).fontSize),
+      };
+    });
+    assert.equal((await state()).free, false, "no gap outside fullscreen");
+    await page.mouse.click(950, 580); // outside the player, so the key goes to the page
+    await page.keyboard.press("f");
+    await page.waitForFunction(() => !!document.fullscreenElement);
+    await page.waitForTimeout(200);
+    const during = await state();
+    assert.equal(during.free, true, "top must be kept free right after entering fullscreen");
+    assert.ok(during.top >= 70, "card text starts below the notice, at " + during.top);
+    assert.equal(during.scrolls, false);
+    if (shotsDir) await page.screenshot({ path: path.join(shotsDir, "10-fullscreen-esc-space.png") });
+    await page.waitForTimeout(4600);
+    const after = await state();
+    assert.equal(after.free, false, "after a few seconds the card moves back up");
+    assert.ok(after.top < 70);
+    assert.equal(after.scrolls, false);
+    assert.ok(after.font >= during.font);
+    await page.evaluate(() => document.exitFullscreen());
+    await page.waitForFunction(() => !document.fullscreenElement);
+    await closeCard();
+  });
+
   assert.deepEqual(errors, [], "page errors: " + errors.join("; "));
   await context.close();
   console.log(`\nall ${steps.length} browser tests passed`);

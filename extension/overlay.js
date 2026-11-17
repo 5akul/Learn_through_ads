@@ -31,6 +31,7 @@
     }
     .panel.min .pill { display: block; }
     .hide { background: none; border: 0; padding: 0; font: inherit; color: inherit; text-decoration: underline; cursor: pointer; }
+    .panel.esc-space:not(.min) { padding-top: 76px; }
     .skiphint { font-size: 0.8em; font-weight: 600; color: #ffcc00; }
     .frame { position: absolute; border: 3px solid #ffcc00; border-radius: 8px; pointer-events: none; }
     /* The card itself scrolls if it is ever too long; the footer below always stays in view. */
@@ -88,6 +89,16 @@
     .adtime { font-size: 0.7em; color: #9a9a9a; }
   `;
 
+  // Right after switching to fullscreen, Chrome shows "Press Esc to exit full screen" at the top
+  // for a few seconds. Extensions cannot hide it, so the card keeps that strip free for a moment.
+  const ESC_HINT_MS = 4500;
+  let fullscreenSince = 0;
+  const openOverlays = new Set();
+  document.addEventListener("fullscreenchange", () => {
+    fullscreenSince = document.fullscreenElement ? Date.now() : 0;
+    for (const overlay of openOverlays) overlay.updateEscSpace();
+  });
+
   function el(tag, cls, ...kids) {
     const e = document.createElement(tag);
     if (cls) e.className = cls;
@@ -137,6 +148,9 @@
       shadow.append(styleEl, this.panel, this.frame);
       player.append(this.host);
 
+      openOverlays.add(this);
+      this.updateEscSpace();
+
       if (this.layout === "player" && typeof ResizeObserver === "function") {
         // The player changed size (fullscreen, theatre mode): the Skip button moved too, so measure it first.
         this.resizeObserver = new ResizeObserver(() => {
@@ -144,6 +158,21 @@
           this.fit();
         });
         this.resizeObserver.observe(this.host);
+      }
+    }
+
+    // Moves the card down while Chrome's "Press Esc" notice is showing, then back up.
+    updateEscSpace() {
+      clearTimeout(this.escTimer);
+      if (this.layout !== "player") return;
+      const left = fullscreenSince ? fullscreenSince + ESC_HINT_MS - Date.now() : 0;
+      const on = left > 0;
+      const changed = on !== this.panel.classList.contains("esc-space");
+      this.panel.classList.toggle("esc-space", on);
+      if (on) this.escTimer = setTimeout(() => this.updateEscSpace(), left + 20);
+      if (changed) {
+        this.updateHole();
+        this.fit();
       }
     }
 
@@ -287,6 +316,8 @@
     }
 
     destroy() {
+      openOverlays.delete(this);
+      clearTimeout(this.escTimer);
       this.clearTimers();
       if (this.resizeObserver) this.resizeObserver.disconnect();
       this.host.remove();
