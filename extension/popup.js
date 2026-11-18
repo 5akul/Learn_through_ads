@@ -67,6 +67,29 @@
   examOn.addEventListener("change", saveExam);
   examCount.addEventListener("change", saveExam);
 
+  // ---- Where the cards come from
+  const infoEl = document.getElementById("cardInfo");
+  const showInfo = async (count) => {
+    const info = await chrome.runtime.sendMessage({ type: "cardInfo" }).catch(() => null);
+    const when = info && info.online
+      ? "updated " + new Date(info.loaded).toLocaleString([], { day: "numeric", month: "numeric", hour: "2-digit", minute: "2-digit" })
+      : "from the extension folder";
+    infoEl.textContent = `${count} cards, ${when}.`;
+  };
+  showInfo((cards || []).length);
+  const updateBtn = document.getElementById("update");
+  updateBtn.addEventListener("click", async () => {
+    updateBtn.disabled = true;
+    updateBtn.textContent = "Checking…";
+    const result = await chrome.runtime.sendMessage({ type: "refreshCards" }).catch(() => null);
+    if (result && result.ok) {
+      await showInfo(result.count);
+      updateBtn.textContent = "Done. Reload YouTube to use them.";
+    } else {
+      updateBtn.textContent = "No connection. The last cards stay.";
+    }
+  });
+
   // ---- Manual mode
   document.getElementById("practice").addEventListener("click", () => {
     chrome.tabs.create({ url: chrome.runtime.getURL("practice.html") });

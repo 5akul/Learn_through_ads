@@ -3,7 +3,7 @@
 Chrome-Extension, die YouTube-Werbepausen in kurze Lernkarten für Cambridge AS/A Level verwandelt.
 Die Werbung läuft normal weiter, nur stumm und von der Karte verdeckt. Nichts wird blockiert oder übersprungen.
 
-**Stand: Version 0.7** (30 Lernkarten für Computer Science aus den eigenen Unterrichtsnotizen, Kapitel 2, 3 und 5)
+**Stand: Version 0.8** (Karten werden von GitHub geladen; 30 Lernkarten für Computer Science aus den eigenen Unterrichtsnotizen)
 
 Auf YouTube:
 
@@ -28,7 +28,9 @@ Klick auf das Extension-Symbol (Einstellungsfenster):
 - **Practice 10 cards now:** manueller Modus, zehn Karten am Stück ohne YouTube.
 - Zeigt Streak und die Antworten von heute.
 
-Gespeichert wird nur lokal im Browser: welche Karte wann gezeigt und wie beantwortet wurde, die Daumen-Bewertungen und die Einstellungen. Nichts verlässt das Gerät.
+Gespeichert wird nur lokal im Browser: welche Karte wann gezeigt und wie beantwortet wurde, die Daumen-Bewertungen und die Einstellungen. Nichts davon verlässt das Gerät.
+
+**Code und Karten sind getrennt:** Die Extension lädt die Karten von GitHub (`extension/cards/` im Zweig `main`), höchstens alle 30 Minuten, oder sofort mit „Check for new cards“ im Einstellungsfenster. Neue Karten kommen so ohne neuen Download an; die YouTube-Seite einmal neu laden. Die zuletzt geladenen Karten bleiben im Browser gespeichert, ohne Internet geht also alles weiter. Bis zum ersten erfolgreichen Laden gelten die Karten im Extension-Ordner. Dabei werden nur die Kartendateien heruntergeladen, es wird nichts über den Nutzer gesendet.
 
 Noch nicht drin: mehr Prüfungsfächer-Karten in den 8 Wochen vor der Prüfung, Tagesziel, Web Store.
 
@@ -42,7 +44,7 @@ Einmalig:
 4. **Entpackte Erweiterung laden** klicken und im entpackten Ordner den Unterordner **`extension`** auswählen.
 5. Ein YouTube-Video mit Werbung öffnen.
 
-Nach einem Update: Schritte 1 und 2 wiederholen, den alten Ordner ersetzen, in `chrome://extensions` bei der Extension auf den runden Pfeil (Neu laden) klicken und die YouTube-Seite neu laden. Welche Version geladen ist, steht dort neben dem Namen.
+Neue Karten brauchen keinen Download (siehe oben). Nach einem Update des Codes: Schritte 1 und 2 wiederholen, den alten Ordner ersetzen, in `chrome://extensions` bei der Extension auf den runden Pfeil (Neu laden) klicken und die YouTube-Seite neu laden. Welche Version geladen ist, steht dort neben dem Namen.
 
 Wichtig, sonst gehen Streak und Lernverlauf verloren: Der Ordner muss immer am selben Ort liegen und gleich heißen, und die Extension wird nur neu geladen, nie entfernt.
 
