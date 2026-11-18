@@ -9,7 +9,7 @@
 importScripts("selection.js"); // LTA.isUsableCard
 
 const SUBJECT_FILES = ["computer_science", "mathematics", "economics", "psychology"];
-const ONLINE_BASE = "https://raw.githubusercontent.com/5akul/learn_through_ads_cards/main/cards/";
+const ONLINE_BASE = "https://raw.githubusercontent.com/5akul/Learn_through_ads/main/extension/cards/";
 const CHECK_EVERY_MS = 30 * 60 * 1000; // look for new cards at most every 30 minutes
 
 // Reads every subject file from GitHub. A missing file (404) means "no cards for this subject".
