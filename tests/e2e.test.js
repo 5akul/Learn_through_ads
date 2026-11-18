@@ -352,22 +352,24 @@ function makeVideo() {
     await popup.locator("select").first().waitFor();
     const subjects = new Set(allCards.map((c) => c.subject));
     assert.equal(await popup.locator("select").count(), subjects.size, "one chapter menu per subject with cards");
-    const psych = allCards.find((c) => c.subject === "psychology");
-    await popup.locator("select[data-subject=psychology]").selectOption(String(psych.chapter));
+    // Uses the last subject that has cards, whichever subjects there are right now.
+    const sample = allCards[allCards.length - 1];
+    const subj = sample.subject;
+    await popup.locator(`select[data-subject=${subj}]`).selectOption(String(sample.chapter));
     await popup.locator("#examCount").fill("4");
     await popup.locator("#examOn").check();
     await popup.waitForTimeout(200);
     let s = await getSettings();
-    assert.equal(s.currentChapter.psychology, psych.chapter);
+    assert.equal(s.currentChapter[subj], sample.chapter);
     assert.equal(s.minCorrect, 4);
     if (shotsDir) await popup.screenshot({ path: path.join(shotsDir, "5-settings.png") });
     await popup.locator("#examOn").uncheck();
-    await popup.locator("select[data-subject=psychology]").selectOption("");
+    await popup.locator(`select[data-subject=${subj}]`).selectOption("");
     await popup.waitForTimeout(200);
     s = await getSettings();
     assert.equal(s.minCorrect, 0);
     assert.equal(s.examCount, 4, "the number is remembered for next time");
-    assert.equal("psychology" in s.currentChapter, false);
+    assert.equal(subj in s.currentChapter, false);
     await popup.close();
   });
 
