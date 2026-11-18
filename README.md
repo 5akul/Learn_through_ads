@@ -3,7 +3,7 @@
 Chrome-Extension, die YouTube-Werbepausen in kurze Lernkarten für Cambridge AS/A Level verwandelt.
 Die Werbung läuft normal weiter, nur stumm und von der Karte verdeckt. Nichts wird blockiert oder übersprungen.
 
-**Stand: Version 0.6** (Bau-Schritte 3 bis 5 von Version 1, dazu Einstellungsfenster und manueller Modus)
+**Stand: Version 0.7** (40 Lernkarten, je 10 für Computer Science, Mathematics, Economics und Psychology)
 
 Auf YouTube:
 

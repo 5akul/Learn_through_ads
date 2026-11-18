@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Learn Through Ads",
-  "version": "0.6.1",
+  "version": "0.7.0",
   "description": "Turns YouTube ad breaks into short Cambridge A-Level flashcards. The ad keeps playing, just muted.",
   "icons": {
     "16": "icons/icon16.png",

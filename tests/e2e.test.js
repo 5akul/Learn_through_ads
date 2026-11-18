@@ -232,7 +232,9 @@ function makeVideo() {
     assert.deepEqual([...texts].sort(), [...card.options].sort(), "exactly the two options as buttons");
     return card;
   };
-  const optionButton = (text) => overlay.locator(".content .buttons .btn", { hasText: new RegExp(`^${text}$`) });
+  // Escapes characters like ( ) that have a special meaning in a search pattern.
+  const exact = (text) => new RegExp(`^${text.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}$`);
+  const optionButton = (text) => overlay.locator(".content .buttons .btn", { hasText: exact(text) });
   const lastAnswer = async () => {
     const { events } = await worker.evaluate(() => chrome.storage.local.get("events"));
     return events.filter((e) => e.type === "answer").pop();
@@ -282,7 +284,7 @@ function makeVideo() {
     const card = allCards.find((c) => (c.type === "cloze" ? c.hook.replace("____", "______") : c.hook) === hook);
     assert.ok(card, "card on screen not found in the card files: " + hook);
     if (card.type === "cloze") {
-      await scope.locator(".content .buttons .btn", { hasText: new RegExp(`^${card.options[0]}$`) }).click();
+      await scope.locator(".content .buttons .btn", { hasText: exact(card.options[0]) }).click();
     } else if (card.type === "find_error") {
       await scope.locator(".code button").nth(card.error_line - 1).click();
     } else if (card.type === "estimate") {

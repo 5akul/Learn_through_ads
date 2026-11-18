@@ -2,43 +2,180 @@
   "schema_version": 1,
   "cards": [
     {
-      "id": "cs-11-001",
+      "id": "cs-01-001",
       "subject": "computer_science",
-      "syllabus_code": "9618 11.2",
-      "chapter": 11,
-      "chapter_title": "Programming",
-      "type": "find_error",
-      "hook": "This should add up ten numbers. It outputs only the last one. Tap the broken line.",
-      "lines": [
-        "Total ← 0",
-        "FOR Count ← 1 TO 10",
-        "    INPUT Number",
-        "    Total ← Number",
-        "NEXT Count",
-        "OUTPUT Total"
+      "syllabus_code": "9618 1.1",
+      "chapter": 1,
+      "chapter_title": "Information representation",
+      "type": "cloze",
+      "hook": "In ____, the leftmost bit of an 8-bit integer is worth -128.",
+      "options": [
+        "two's complement",
+        "sign and magnitude"
       ],
-      "error_line": 4,
-      "answer": "Line 4 overwrites Total every time. It must be Total ← Total + Number.",
+      "answer": "Two's complement uses a negative place value for the most significant bit. Range for 8 bits: -128 to +127.",
+      "difficulty": 1,
+      "exam_weight": "high",
+      "duration_seconds": 15
+    },
+    {
+      "id": "cs-01-002",
+      "subject": "computer_science",
+      "syllabus_code": "9618 1.1",
+      "chapter": 1,
+      "chapter_title": "Information representation",
+      "type": "hook_reveal",
+      "hook": "A kilobyte and a kibibyte are NOT the same size. What is the difference?",
+      "answer": "Kilobyte (kB) = 1000 bytes, a denary prefix. Kibibyte (KiB) = 1024 bytes = 2^10, a binary prefix.",
+      "difficulty": 1,
+      "exam_weight": "medium",
+      "duration_seconds": 20
+    },
+    {
+      "id": "cs-01-003",
+      "subject": "computer_science",
+      "syllabus_code": "9618 1.1",
+      "chapter": 1,
+      "chapter_title": "Information representation",
+      "type": "find_error",
+      "hook": "Convert binary 1011 0110 to hexadecimal. Tap the wrong line.",
+      "lines": [
+        "Split into nibbles: 1011 | 0110",
+        "1011 = 8 + 4 + 1 = 13",
+        "13 in hex = D",
+        "0110 = 4 + 2 = 6",
+        "Hex: D6"
+      ],
+      "error_line": 2,
+      "answer": "Line 2: 1011 is 8 + 2 + 1 = 11, so the first hex digit is B. Correct answer: B6.",
       "difficulty": 2,
       "exam_weight": "high",
       "duration_seconds": 25
     },
     {
-      "id": "cs-03-001",
+      "id": "cs-01-004",
+      "subject": "computer_science",
+      "syllabus_code": "9618 1.2",
+      "chapter": 1,
+      "chapter_title": "Information representation",
+      "type": "estimate",
+      "hook": "A bitmap is 100 × 50 pixels with a colour depth of 8 bits. File size in bytes?",
+      "estimate": {
+        "min": 0,
+        "max": 20000,
+        "correct": 5000,
+        "tolerance": 500,
+        "unit": "bytes"
+      },
+      "answer": "100 × 50 = 5000 pixels. × 8 bits = 40 000 bits. ÷ 8 = 5000 bytes. Size = width × height × colour depth.",
+      "difficulty": 2,
+      "exam_weight": "high",
+      "duration_seconds": 30
+    },
+    {
+      "id": "cs-01-005",
+      "subject": "computer_science",
+      "syllabus_code": "9618 1.3",
+      "chapter": 1,
+      "chapter_title": "Information representation",
+      "type": "cloze",
+      "hook": "____ compression permanently removes data, such as sounds humans cannot hear.",
+      "options": [
+        "Lossy",
+        "Lossless"
+      ],
+      "answer": "Lossy: the original file cannot be rebuilt, e.g. MP3, JPEG. Lossless (e.g. run-length encoding) lets you rebuild the original exactly.",
+      "difficulty": 1,
+      "exam_weight": "high",
+      "duration_seconds": 15
+    },
+    {
+      "id": "cs-03-002",
       "subject": "computer_science",
       "syllabus_code": "9618 3.1",
       "chapter": 3,
       "chapter_title": "Hardware",
       "type": "cloze",
-      "hook": "Your phone screen ignores a pen but reacts to your finger. That is a ____ touchscreen.",
+      "hook": "____ RAM stores each bit in a flip-flop, needs no refreshing and is used for cache.",
       "options": [
-        "capacitive",
-        "resistive"
+        "Static",
+        "Dynamic"
       ],
-      "answer": "Capacitive screens sense the change in the electric field caused by a conductor such as skin. Resistive screens react to pressure, so a pen works too.",
+      "answer": "Static RAM (SRAM) is faster but more expensive. Dynamic RAM (DRAM) uses capacitors that must be refreshed and is used for main memory.",
       "difficulty": 1,
-      "exam_weight": "low",
+      "exam_weight": "high",
+      "duration_seconds": 20
+    },
+    {
+      "id": "cs-03-003",
+      "subject": "computer_science",
+      "syllabus_code": "9618 3.1",
+      "chapter": 3,
+      "chapter_title": "Hardware",
+      "type": "hook_reveal",
+      "hook": "Why is the start-up (boot) program stored in ROM and not in RAM?",
+      "answer": "ROM is non-volatile: it keeps its contents without power, so the instructions are there when the computer is switched on. It also cannot be changed by accident.",
+      "difficulty": 1,
+      "exam_weight": "medium",
+      "duration_seconds": 20
+    },
+    {
+      "id": "cs-04-001",
+      "subject": "computer_science",
+      "syllabus_code": "9618 4.1",
+      "chapter": 4,
+      "chapter_title": "Processor fundamentals",
+      "type": "cloze",
+      "hook": "The ____ holds the address of the next instruction to be fetched.",
+      "options": [
+        "Program Counter (PC)",
+        "Current Instruction Register (CIR)"
+      ],
+      "answer": "Program Counter (PC). It is incremented during the fetch stage. The CIR holds the instruction currently being decoded and executed.",
+      "difficulty": 1,
+      "exam_weight": "high",
       "duration_seconds": 15
+    },
+    {
+      "id": "cs-04-002",
+      "subject": "computer_science",
+      "syllabus_code": "9618 4.1",
+      "chapter": 4,
+      "chapter_title": "Processor fundamentals",
+      "type": "find_error",
+      "hook": "The fetch stage in register transfer notation. One line is wrong. Tap it.",
+      "lines": [
+        "MAR ← [PC]",
+        "PC ← [PC] + 1",
+        "MDR ← [[MAR]]",
+        "MAR ← [MDR]"
+      ],
+      "error_line": 4,
+      "answer": "Line 4: the instruction in the MDR goes to the CIR, not the MAR. Correct: CIR ← [MDR].",
+      "difficulty": 2,
+      "exam_weight": "high",
+      "duration_seconds": 25
+    },
+    {
+      "id": "cs-11-002",
+      "subject": "computer_science",
+      "syllabus_code": "9618 11.2",
+      "chapter": 11,
+      "chapter_title": "Programming",
+      "type": "find_error",
+      "hook": "This should output the average of the numbers 1 to 10. Tap the broken line.",
+      "lines": [
+        "Total ← 0",
+        "FOR Count ← 1 TO 10",
+        "    Total ← Total + Count",
+        "NEXT Count",
+        "OUTPUT \"Average: \", Total / 5"
+      ],
+      "error_line": 5,
+      "answer": "Line 5 divides by 5, but there are 10 numbers. Correct: Total / 10, which gives 5.5.",
+      "difficulty": 2,
+      "exam_weight": "high",
+      "duration_seconds": 25
     }
   ]
 }

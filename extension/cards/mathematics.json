@@ -1,0 +1,175 @@
+{
+  "schema_version": 1,
+  "cards": [
+    {
+      "id": "ma-01-001",
+      "subject": "mathematics",
+      "syllabus_code": "9709 1.1",
+      "chapter": 1,
+      "chapter_title": "Quadratics",
+      "type": "find_error",
+      "hook": "Write 2x² + 12x + 5 in the form a(x + b)² + c. Tap the wrong line.",
+      "lines": [
+        "= 2(x² + 6x) + 5",
+        "= 2[(x + 3)² - 9] + 5",
+        "= 2(x + 3)² - 9 + 5",
+        "= 2(x + 3)² - 4"
+      ],
+      "error_line": 3,
+      "answer": "Line 3: the 2 multiplies the -9 as well, giving -18. Correct: 2(x + 3)² - 13. A classic lost A1.",
+      "difficulty": 2,
+      "exam_weight": "high",
+      "duration_seconds": 30
+    },
+    {
+      "id": "ma-01-002",
+      "subject": "mathematics",
+      "syllabus_code": "9709 1.1",
+      "chapter": 1,
+      "chapter_title": "Quadratics",
+      "type": "hook_reveal",
+      "hook": "A line must NOT meet a curve. After substituting to get one quadratic, what condition do you use?",
+      "answer": "Discriminant b² - 4ac < 0 (no real roots). Line is a tangent: = 0. Line meets the curve twice: > 0.",
+      "difficulty": 2,
+      "exam_weight": "high",
+      "duration_seconds": 25
+    },
+    {
+      "id": "ma-02-001",
+      "subject": "mathematics",
+      "syllabus_code": "9709 1.2",
+      "chapter": 2,
+      "chapter_title": "Functions",
+      "type": "cloze",
+      "hook": "A function has an inverse only if it is ____.",
+      "options": [
+        "one-one",
+        "many-one"
+      ],
+      "answer": "One-one: every output comes from exactly one input. That is why questions often restrict the domain first.",
+      "difficulty": 1,
+      "exam_weight": "high",
+      "duration_seconds": 15
+    },
+    {
+      "id": "ma-02-002",
+      "subject": "mathematics",
+      "syllabus_code": "9709 1.2",
+      "chapter": 2,
+      "chapter_title": "Functions",
+      "type": "find_error",
+      "hook": "Find f⁻¹(x) for f(x) = 3x - 4. Tap the wrong line.",
+      "lines": [
+        "y = 3x - 4",
+        "x = 3y - 4",
+        "3y = x - 4",
+        "f⁻¹(x) = (x - 4)/3"
+      ],
+      "error_line": 3,
+      "answer": "Line 3: adding 4 to both sides gives 3y = x + 4. Correct: f⁻¹(x) = (x + 4)/3.",
+      "difficulty": 2,
+      "exam_weight": "high",
+      "duration_seconds": 25
+    },
+    {
+      "id": "ma-03-001",
+      "subject": "mathematics",
+      "syllabus_code": "9709 1.3",
+      "chapter": 3,
+      "chapter_title": "Coordinate geometry",
+      "type": "hook_reveal",
+      "hook": "A line has gradient 2/3. What is the gradient of a line perpendicular to it?",
+      "answer": "-3/2. Perpendicular gradients multiply to -1 (m₁ × m₂ = -1): flip the fraction and change the sign.",
+      "difficulty": 1,
+      "exam_weight": "high",
+      "duration_seconds": 15
+    },
+    {
+      "id": "ma-04-001",
+      "subject": "mathematics",
+      "syllabus_code": "9709 1.4",
+      "chapter": 4,
+      "chapter_title": "Circular measure",
+      "type": "cloze",
+      "hook": "With θ in radians, the arc length of a sector with radius r is ____.",
+      "options": [
+        "rθ",
+        "½r²θ"
+      ],
+      "answer": "Arc length s = rθ. The sector area is ½r²θ. Both need θ in radians, not degrees.",
+      "difficulty": 1,
+      "exam_weight": "high",
+      "duration_seconds": 15
+    },
+    {
+      "id": "ma-05-001",
+      "subject": "mathematics",
+      "syllabus_code": "9709 1.5",
+      "chapter": 5,
+      "chapter_title": "Trigonometry",
+      "type": "find_error",
+      "hook": "Solve sin x = 0.5 for 0° ≤ x ≤ 360°. Tap the wrong line.",
+      "lines": [
+        "sin x = 0.5",
+        "x = 30°",
+        "Second solution: x = 180° + 30°",
+        "x = 30° or 210°"
+      ],
+      "error_line": 3,
+      "answer": "Line 3: sine is positive in the 1st and 2nd quadrants, so the second solution is 180° - 30° = 150°. Answer: 30° or 150°.",
+      "difficulty": 2,
+      "exam_weight": "high",
+      "duration_seconds": 25
+    },
+    {
+      "id": "ma-06-001",
+      "subject": "mathematics",
+      "syllabus_code": "9709 1.6",
+      "chapter": 6,
+      "chapter_title": "Series",
+      "type": "cloze",
+      "hook": "A geometric series has a sum to infinity only if ____.",
+      "options": [
+        "|r| < 1",
+        "|r| > 1"
+      ],
+      "answer": "|r| < 1, so the terms get smaller and smaller. Then S∞ = a / (1 - r).",
+      "difficulty": 1,
+      "exam_weight": "high",
+      "duration_seconds": 15
+    },
+    {
+      "id": "ma-07-001",
+      "subject": "mathematics",
+      "syllabus_code": "9709 1.7",
+      "chapter": 7,
+      "chapter_title": "Differentiation",
+      "type": "find_error",
+      "hook": "Differentiate y = 4/x². Tap the wrong line.",
+      "lines": [
+        "y = 4/x²",
+        "y = 4x⁻²",
+        "dy/dx = -8x⁻¹",
+        "dy/dx = -8/x"
+      ],
+      "error_line": 3,
+      "answer": "Line 3: the power goes DOWN by one, from -2 to -3. Correct: dy/dx = -8x⁻³ = -8/x³.",
+      "difficulty": 2,
+      "exam_weight": "high",
+      "duration_seconds": 25
+    },
+    {
+      "id": "ma-08-001",
+      "subject": "mathematics",
+      "syllabus_code": "9709 1.8",
+      "chapter": 8,
+      "chapter_title": "Integration",
+      "type": "hook_reveal",
+      "hook": "You integrate dy/dx to find the equation of a curve through a given point. Which step do students forget most?",
+      "answer": "Adding + c. Then put the given point into the equation to find c. Without c the final A1 mark is lost.",
+      "difficulty": 1,
+      "exam_weight": "high",
+      "duration_seconds": 20
+    }
+  ]
+}
