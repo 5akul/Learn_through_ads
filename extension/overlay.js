@@ -10,6 +10,18 @@
     psychology: "Psychology",
   };
 
+  // Slider step: about 100 positions across the range, as a round number (…, 0.1, 1, 10, …),
+  // and small enough that the real value can be picked exactly (e.g. -0.4 on a -2 to 0 slider).
+  function sliderStep(e) {
+    let step = Math.pow(10, Math.floor(Math.log10((e.max - e.min) / 100 || 1)));
+    for (let i = 0; i < 6; i++) {
+      const n = (e.correct - e.min) / step;
+      if (Math.abs(n - Math.round(n)) < 1e-6) break;
+      step /= 10;
+    }
+    return step;
+  }
+
   const CSS = `
     * { box-sizing: border-box; }
     [hidden] { display: none !important; }
@@ -530,13 +542,13 @@
       slider.type = "range";
       slider.min = e.min;
       slider.max = e.max;
-      slider.step = e.step || 1;
+      slider.step = sliderStep(e);
       slider.value = e.min; // never start on or near the answer
       slider.addEventListener("input", () => (value.textContent = slider.value + unit));
       const lock = button("btn primary wide", "Lock in", () => {
         slider.disabled = lock.disabled = true;
         const guess = Number(slider.value);
-        const ok = Math.abs(guess - e.correct) <= e.tolerance;
+        const ok = Math.abs(guess - e.correct) <= e.tolerance + 1e-9; // 1e-9: rounding in decimals
         value.textContent = `You: ${guess}${unit} · Real: ${e.correct}${unit}`;
         this.answer(ok);
         this.showReveal(ok);
