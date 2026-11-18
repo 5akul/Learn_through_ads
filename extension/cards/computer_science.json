@@ -2,180 +2,504 @@
   "schema_version": 1,
   "cards": [
     {
-      "id": "cs-01-001",
+      "id": "cs-02-001",
       "subject": "computer_science",
-      "syllabus_code": "9618 1.1",
-      "chapter": 1,
-      "chapter_title": "Information representation",
+      "syllabus_code": "9618 2.1",
+      "chapter": 2,
+      "chapter_title": "Communication and networking",
       "type": "cloze",
-      "hook": "In ____, the leftmost bit of an 8-bit integer is worth -128.",
+      "hook": "A LAN and a WAN differ in geographical area and in ____.",
       "options": [
-        "two's complement",
-        "sign and magnitude"
+        "who owns the infrastructure",
+        "wired or wireless connection"
       ],
-      "answer": "Two's complement uses a negative place value for the most significant bit. Range for 8 bits: -128 to +127.",
+      "answer": "LAN: small area, privately owned, dedicated infrastructure. WAN: large area, public or third-party (leased) infrastructure. Both can be wired or wireless.",
       "difficulty": 1,
       "exam_weight": "high",
-      "duration_seconds": 15
-    },
-    {
-      "id": "cs-01-002",
-      "subject": "computer_science",
-      "syllabus_code": "9618 1.1",
-      "chapter": 1,
-      "chapter_title": "Information representation",
-      "type": "hook_reveal",
-      "hook": "A kilobyte and a kibibyte are NOT the same size. What is the difference?",
-      "answer": "Kilobyte (kB) = 1000 bytes, a denary prefix. Kibibyte (KiB) = 1024 bytes = 2^10, a binary prefix.",
-      "difficulty": 1,
-      "exam_weight": "medium",
       "duration_seconds": 20
     },
     {
-      "id": "cs-01-003",
+      "id": "cs-02-002",
       "subject": "computer_science",
-      "syllabus_code": "9618 1.1",
-      "chapter": 1,
-      "chapter_title": "Information representation",
-      "type": "find_error",
-      "hook": "Convert binary 1011 0110 to hexadecimal. Tap the wrong line.",
-      "lines": [
-        "Split into nibbles: 1011 | 0110",
-        "1011 = 8 + 4 + 1 = 13",
-        "13 in hex = D",
-        "0110 = 4 + 2 = 6",
-        "Hex: D6"
-      ],
-      "error_line": 2,
-      "answer": "Line 2: 1011 is 8 + 2 + 1 = 11, so the first hex digit is B. Correct answer: B6.",
+      "syllabus_code": "9618 2.1",
+      "chapter": 2,
+      "chapter_title": "Communication and networking",
+      "type": "hook_reveal",
+      "hook": "Booking terminals only display the screen. All processing happens on a central server. Thin or thick client?",
+      "answer": "Thin client [1]: processing and storage happen on the server, so the terminal cannot work without the network [1]. The name alone is only half the marks.",
+      "difficulty": 1,
+      "exam_weight": "high",
+      "duration_seconds": 20
+    },
+    {
+      "id": "cs-02-003",
+      "subject": "computer_science",
+      "syllabus_code": "9618 2.2",
+      "chapter": 2,
+      "chapter_title": "Communication and networking",
+      "type": "estimate",
+      "hook": "A full mesh connects 5 devices. How many links does it need?",
+      "estimate": {
+        "min": 0,
+        "max": 25,
+        "correct": 10,
+        "tolerance": 0,
+        "unit": "links"
+      },
+      "answer": "10 links: n(n − 1) ÷ 2 = 5 × 4 ÷ 2. A star needs only 5 links plus one switch. That is why a mesh is expensive.",
+      "difficulty": 2,
+      "exam_weight": "medium",
+      "duration_seconds": 25
+    },
+    {
+      "id": "cs-02-004",
+      "subject": "computer_science",
+      "syllabus_code": "9618 2.2",
+      "chapter": 2,
+      "chapter_title": "Communication and networking",
+      "type": "hook_reveal",
+      "hook": "Star topology. How does a packet get from PC1 to PC3? (3 marks)",
+      "answer": "PC1 sends the packet to the switch [1]. The switch checks the destination address [1]. It forwards it ONLY to PC3, the intended recipient [1].",
       "difficulty": 2,
       "exam_weight": "high",
       "duration_seconds": 25
     },
     {
-      "id": "cs-01-004",
+      "id": "cs-02-005",
       "subject": "computer_science",
-      "syllabus_code": "9618 1.2",
-      "chapter": 1,
-      "chapter_title": "Information representation",
+      "syllabus_code": "9618 2.3",
+      "chapter": 2,
+      "chapter_title": "Communication and networking",
+      "type": "cloze",
+      "hook": "Two server rooms are 900 m apart, next to a railway with heavy electrical equipment. The best cable is ____.",
+      "options": [
+        "fibre-optic",
+        "twisted pair"
+      ],
+      "answer": "Fibre-optic carries pulses of light, so it is immune to electromagnetic interference, and the signal barely degrades over 900 m. It costs more, but the reliability justifies it.",
+      "difficulty": 2,
+      "exam_weight": "medium",
+      "duration_seconds": 25
+    },
+    {
+      "id": "cs-02-006",
+      "subject": "computer_science",
+      "syllabus_code": "9618 2.5",
+      "chapter": 2,
+      "chapter_title": "Communication and networking",
+      "type": "find_error",
+      "hook": "CSMA/CD after a collision. One step is wrong. Tap it.",
+      "lines": [
+        "Listen to the channel (carrier sense)",
+        "Send only when the line is idle",
+        "A collision is detected",
+        "Abort and send a jamming signal",
+        "Wait the same fixed time, then resend"
+      ],
+      "error_line": 5,
+      "answer": "Line 5: each device waits a RANDOM time, which grows after repeated collisions. With the same wait they would collide again. Never drop the word 'random'.",
+      "difficulty": 2,
+      "exam_weight": "high",
+      "duration_seconds": 25
+    },
+    {
+      "id": "cs-02-007",
+      "subject": "computer_science",
+      "syllabus_code": "9618 2.6",
+      "chapter": 2,
+      "chapter_title": "Communication and networking",
+      "type": "cloze",
+      "hook": "The World Wide Web is ____.",
+      "options": [
+        "a service that runs on the internet",
+        "another name for the internet"
+      ],
+      "answer": "The internet is the physical network of connected networks (the roads). The WWW is the websites on web servers, reached with a browser: one thing driving on the roads.",
+      "difficulty": 1,
+      "exam_weight": "high",
+      "duration_seconds": 15
+    },
+    {
+      "id": "cs-02-008",
+      "subject": "computer_science",
+      "syllabus_code": "9618 2.9",
+      "chapter": 2,
+      "chapter_title": "Communication and networking",
+      "type": "hook_reveal",
+      "hook": "You type a URL into a browser. What does the DNS do, and what does it NOT do?",
+      "answer": "It translates the domain name into the web server's IP address. It does NOT open the page: the web server sends the page and the browser displays it.",
+      "difficulty": 1,
+      "exam_weight": "high",
+      "duration_seconds": 20
+    },
+    {
+      "id": "cs-02-009",
+      "subject": "computer_science",
+      "syllabus_code": "9618 2.8",
+      "chapter": 2,
+      "chapter_title": "Communication and networking",
+      "type": "find_error",
+      "hook": "Three of these IPv4 addresses are valid. Tap the invalid one.",
+      "lines": [
+        "172.16.254.1",
+        "192.168.0.10",
+        "198.168.1.300",
+        "10.0.0.255"
+      ],
+      "error_line": 3,
+      "answer": "198.168.1.300 is invalid: each IPv4 group is denary 0–255, and 300 > 255. In the exam always give the rule, not just 'invalid'.",
+      "difficulty": 1,
+      "exam_weight": "high",
+      "duration_seconds": 20
+    },
+    {
+      "id": "cs-02-010",
+      "subject": "computer_science",
+      "syllabus_code": "9618 2.8",
+      "chapter": 2,
+      "chapter_title": "Communication and networking",
       "type": "estimate",
-      "hook": "A bitmap is 100 × 50 pixels with a colour depth of 8 bits. File size in bytes?",
+      "hook": "The network 195.12.6.0/23: how many usable host addresses?",
       "estimate": {
         "min": 0,
-        "max": 20000,
-        "correct": 5000,
-        "tolerance": 500,
-        "unit": "bytes"
+        "max": 1024,
+        "correct": 510,
+        "tolerance": 10,
+        "unit": "hosts"
       },
-      "answer": "100 × 50 = 5000 pixels. × 8 bits = 40 000 bits. ÷ 8 = 5000 bytes. Size = width × height × colour depth.",
+      "answer": "32 − 23 = 9 hostID bits. 2⁹ = 512 addresses, minus the network and broadcast addresses = 510 usable hosts.",
+      "difficulty": 3,
+      "exam_weight": "medium",
+      "duration_seconds": 30
+    },
+    {
+      "id": "cs-03-004",
+      "subject": "computer_science",
+      "syllabus_code": "9618 3.1",
+      "chapter": 3,
+      "chapter_title": "Hardware",
+      "type": "cloze",
+      "hook": "Going UP the memory hierarchy towards the registers, access time gets shorter and cost per unit ____.",
+      "options": [
+        "increases",
+        "decreases"
+      ],
+      "answer": "Registers and cache are fastest but cost most per unit, so their capacity is small. That is why a computer needs both primary and secondary storage.",
+      "difficulty": 1,
+      "exam_weight": "medium",
+      "duration_seconds": 20
+    },
+    {
+      "id": "cs-03-005",
+      "subject": "computer_science",
+      "syllabus_code": "9618 3.1",
+      "chapter": 3,
+      "chapter_title": "Hardware",
+      "type": "hook_reveal",
+      "hook": "A CCTV server stores huge video files. Give one reason for magnetic disks instead of SSD, in mark-scheme words.",
+      "answer": "Lower cost per unit of storage, so the large amount of video is affordable. Or: longer life span under continuous read/write. Never just 'cheaper'.",
+      "difficulty": 2,
+      "exam_weight": "high",
+      "duration_seconds": 25
+    },
+    {
+      "id": "cs-03-006",
+      "subject": "computer_science",
+      "syllabus_code": "9618 3.1",
+      "chapter": 3,
+      "chapter_title": "Hardware",
+      "type": "find_error",
+      "hook": "How a magnetic hard disk works. One line describes a different device. Tap it.",
+      "lines": [
+        "Several platters spin together at the same speed",
+        "Heads on actuator arms move over the surfaces",
+        "Data sits in concentric tracks split into sectors",
+        "Bits are pits and lands read by a laser"
+      ],
+      "error_line": 4,
+      "answer": "Line 4 is an optical disc. A hard disk stores 1 or 0 as two states of magnetisation: a write current changes the magnetic field, and reading turns the field back into a current.",
+      "difficulty": 2,
+      "exam_weight": "medium",
+      "duration_seconds": 25
+    },
+    {
+      "id": "cs-03-007",
+      "subject": "computer_science",
+      "syllabus_code": "9618 3.2",
+      "chapter": 3,
+      "chapter_title": "Hardware",
+      "type": "hook_reveal",
+      "hook": "A computer sends a document to a slow printer through a buffer. How is the buffer used? (4 marks)",
+      "answer": "Data goes into the buffer at the computer's speed [1]. The printer takes it at its slower speed [1]. The processor is free for other tasks [1]. When the buffer is empty, an interrupt asks for more [1]. A buffer never 'sends' anything.",
       "difficulty": 2,
       "exam_weight": "high",
       "duration_seconds": 30
     },
     {
-      "id": "cs-01-005",
-      "subject": "computer_science",
-      "syllabus_code": "9618 1.3",
-      "chapter": 1,
-      "chapter_title": "Information representation",
-      "type": "cloze",
-      "hook": "____ compression permanently removes data, such as sounds humans cannot hear.",
-      "options": [
-        "Lossy",
-        "Lossless"
-      ],
-      "answer": "Lossy: the original file cannot be rebuilt, e.g. MP3, JPEG. Lossless (e.g. run-length encoding) lets you rebuild the original exactly.",
-      "difficulty": 1,
-      "exam_weight": "high",
-      "duration_seconds": 15
-    },
-    {
-      "id": "cs-03-002",
+      "id": "cs-03-008",
       "subject": "computer_science",
       "syllabus_code": "9618 3.1",
       "chapter": 3,
       "chapter_title": "Hardware",
       "type": "cloze",
-      "hook": "____ RAM stores each bit in a flip-flop, needs no refreshing and is used for cache.",
+      "hook": "Flash memory must ____ a whole block before it can write to it.",
       "options": [
-        "Static",
-        "Dynamic"
+        "erase",
+        "read"
       ],
-      "answer": "Static RAM (SRAM) is faster but more expensive. Dynamic RAM (DRAM) uses capacitors that must be refreshed and is used for main memory.",
+      "answer": "NAND flash: transistor cells, no moving parts. A block is erased 'in a flash', one page is read in one operation. The cells wear out slowly with continuous use.",
       "difficulty": 1,
-      "exam_weight": "high",
+      "exam_weight": "low",
       "duration_seconds": 20
     },
     {
-      "id": "cs-03-003",
+      "id": "cs-03-009",
       "subject": "computer_science",
       "syllabus_code": "9618 3.1",
       "chapter": 3,
       "chapter_title": "Hardware",
       "type": "hook_reveal",
-      "hook": "Why is the start-up (boot) program stored in ROM and not in RAM?",
-      "answer": "ROM is non-volatile: it keeps its contents without power, so the instructions are there when the computer is switched on. It also cannot be changed by accident.",
+      "hook": "Laser printer: what happens first, the toner coats the drum or the laser discharges positions on the drum?",
+      "answer": "The laser discharges positions first, building an electrostatic image of the page. Then charged toner sticks only where the drum was discharged, and heated rollers fuse it to the paper.",
+      "difficulty": 2,
+      "exam_weight": "medium",
+      "duration_seconds": 25
+    },
+    {
+      "id": "cs-03-010",
+      "subject": "computer_science",
+      "syllabus_code": "9618 3.1",
+      "chapter": 3,
+      "chapter_title": "Hardware",
+      "type": "hook_reveal",
+      "hook": "An architect 3D-prints a model of a building. Explain how it is printed. (3 marks)",
+      "answer": "Additive manufacturing [1]. A CAD design is split into layers [1]. A nozzle builds the model one layer at a time, repeated for each layer [1]. Finally it is cured.",
+      "difficulty": 2,
+      "exam_weight": "medium",
+      "duration_seconds": 25
+    },
+    {
+      "id": "cs-03-011",
+      "subject": "computer_science",
+      "syllabus_code": "9618 3.2",
+      "chapter": 3,
+      "chapter_title": "Hardware",
+      "type": "hook_reveal",
+      "hook": "A car's lane detection system keeps the car in its lane. Why is it an embedded system? (2 marks)",
+      "answer": "It is built into the car, a larger system [1]. It performs only one task: keeping the car in its lane [1]. Name the car: 'embedded in another system' alone does not score.",
+      "difficulty": 1,
+      "exam_weight": "high",
+      "duration_seconds": 25
+    },
+    {
+      "id": "cs-03-012",
+      "subject": "computer_science",
+      "syllabus_code": "9618 3.2",
+      "chapter": 3,
+      "chapter_title": "Hardware",
+      "type": "find_error",
+      "hook": "SRAM against DRAM. One line is wrong. Tap it.",
+      "lines": [
+        "DRAM stores each bit in a capacitor",
+        "DRAM must be refreshed every few ms",
+        "SRAM stores each bit in a flip-flop",
+        "SRAM: lower cost per unit, higher bit density",
+        "SRAM is used for cache memory"
+      ],
+      "error_line": 4,
+      "answer": "Line 4 describes DRAM: lower cost per unit and higher bit density, so it is used for main memory. SRAM has the faster access time.",
+      "difficulty": 2,
+      "exam_weight": "high",
+      "duration_seconds": 25
+    },
+    {
+      "id": "cs-03-013",
+      "subject": "computer_science",
+      "syllabus_code": "9618 3.2",
+      "chapter": 3,
+      "chapter_title": "Hardware",
+      "type": "cloze",
+      "hook": "A router's firmware is updated without taking the chip out. It is stored in ____.",
+      "options": [
+        "EEPROM",
+        "EPROM"
+      ],
+      "answer": "EEPROM is erased by an electrical signal, even one byte at a time, and stays in the circuit. EPROM is erased with ultraviolet light and is usually removed.",
       "difficulty": 1,
       "exam_weight": "medium",
       "duration_seconds": 20
     },
     {
-      "id": "cs-04-001",
+      "id": "cs-05-001",
       "subject": "computer_science",
       "syllabus_code": "9618 4.1",
-      "chapter": 4,
+      "chapter": 5,
       "chapter_title": "Processor fundamentals",
       "type": "cloze",
-      "hook": "The ____ holds the address of the next instruction to be fetched.",
+      "hook": "The stored program concept: instructions and ____ are stored in the same memory.",
+      "options": [
+        "data",
+        "the operating system"
+      ],
+      "answer": "That is the mark: say WHERE. The processor fetches each instruction from main memory and executes them one after another. A new program means a new job.",
+      "difficulty": 1,
+      "exam_weight": "medium",
+      "duration_seconds": 20
+    },
+    {
+      "id": "cs-05-002",
+      "subject": "computer_science",
+      "syllabus_code": "9618 4.1",
+      "chapter": 5,
+      "chapter_title": "Processor fundamentals",
+      "type": "cloze",
+      "hook": "The ____ stores the address of the next instruction to be fetched.",
       "options": [
         "Program Counter (PC)",
-        "Current Instruction Register (CIR)"
+        "Memory Address Register (MAR)"
       ],
-      "answer": "Program Counter (PC). It is incremented during the fetch stage. The CIR holds the instruction currently being decoded and executed.",
+      "answer": "Program Counter. The MAR stores the address of the location being read from or written to NOW. Always say what a register stores AND which one.",
       "difficulty": 1,
       "exam_weight": "high",
       "duration_seconds": 15
     },
     {
-      "id": "cs-04-002",
+      "id": "cs-05-003",
       "subject": "computer_science",
       "syllabus_code": "9618 4.1",
-      "chapter": 4,
+      "chapter": 5,
+      "chapter_title": "Processor fundamentals",
+      "type": "cloze",
+      "hook": "The ____ stores data just read from memory or about to be written, and acts as a buffer.",
+      "options": [
+        "MDR",
+        "CIR"
+      ],
+      "answer": "Memory Data Register. It is a buffer because transfers inside the CPU are much faster than outside. The CIR holds the instruction being decoded and executed.",
+      "difficulty": 1,
+      "exam_weight": "high",
+      "duration_seconds": 20
+    },
+    {
+      "id": "cs-05-004",
+      "subject": "computer_science",
+      "syllabus_code": "9618 4.1",
+      "chapter": 5,
+      "chapter_title": "Processor fundamentals",
+      "type": "cloze",
+      "hook": "The ____ bus is one-way: it only carries addresses out of the CPU.",
+      "options": [
+        "address",
+        "data"
+      ],
+      "answer": "Address bus: one-way, from the MAR. Data bus: two-way, to the MDR. Control bus: two-way, carries timing, read, write and interrupt signals.",
+      "difficulty": 1,
+      "exam_weight": "high",
+      "duration_seconds": 20
+    },
+    {
+      "id": "cs-05-005",
+      "subject": "computer_science",
+      "syllabus_code": "9618 4.1",
+      "chapter": 5,
+      "chapter_title": "Processor fundamentals",
+      "type": "hook_reveal",
+      "hook": "How do the system clock and the control unit work together? (4 marks)",
+      "answer": "The clock creates timing signals [1], sent on the control bus [1]. On each signal the control unit sends commands to the other components [1], so they are synchronised and steps happen in the right order [1].",
+      "difficulty": 2,
+      "exam_weight": "medium",
+      "duration_seconds": 25
+    },
+    {
+      "id": "cs-05-006",
+      "subject": "computer_science",
+      "syllabus_code": "9618 4.1",
+      "chapter": 5,
+      "chapter_title": "Processor fundamentals",
+      "type": "hook_reveal",
+      "hook": "Why does a higher clock speed improve performance? 'It is faster' scores nothing.",
+      "answer": "Higher clock speed → more fetch–execute cycles per second → more instructions executed each second. 2 GHz = 2 billion cycles per second.",
+      "difficulty": 1,
+      "exam_weight": "high",
+      "duration_seconds": 20
+    },
+    {
+      "id": "cs-05-007",
+      "subject": "computer_science",
+      "syllabus_code": "9618 4.1",
+      "chapter": 5,
+      "chapter_title": "Processor fundamentals",
+      "type": "estimate",
+      "hook": "A 16-bit address bus. How many memory locations can it address directly?",
+      "estimate": {
+        "min": 0,
+        "max": 131072,
+        "correct": 65536,
+        "tolerance": 4000,
+        "unit": "locations"
+      },
+      "answer": "2¹⁶ = 65 536. Every extra address bit doubles the number. A 32-bit address bus reaches about 4.3 billion locations.",
+      "difficulty": 2,
+      "exam_weight": "medium",
+      "duration_seconds": 25
+    },
+    {
+      "id": "cs-05-008",
+      "subject": "computer_science",
+      "syllabus_code": "9618 4.1",
+      "chapter": 5,
       "chapter_title": "Processor fundamentals",
       "type": "find_error",
-      "hook": "The fetch stage in register transfer notation. One line is wrong. Tap it.",
+      "hook": "The fetch stage in register transfer notation. Tap the wrong line.",
       "lines": [
         "MAR ← [PC]",
-        "PC ← [PC] + 1",
+        "PC ← [PC] − 1",
         "MDR ← [[MAR]]",
-        "MAR ← [MDR]"
+        "CIR ← [MDR]"
       ],
-      "error_line": 4,
-      "answer": "Line 4: the instruction in the MDR goes to the CIR, not the MAR. Correct: CIR ← [MDR].",
+      "error_line": 2,
+      "answer": "Line 2: the PC is incremented: PC ← [PC] + 1. Also learn line 3: [[MAR]] means the contents of the address held in the MAR.",
       "difficulty": 2,
       "exam_weight": "high",
       "duration_seconds": 25
     },
     {
-      "id": "cs-11-002",
+      "id": "cs-05-009",
       "subject": "computer_science",
-      "syllabus_code": "9618 11.2",
-      "chapter": 11,
-      "chapter_title": "Programming",
-      "type": "find_error",
-      "hook": "This should output the average of the numbers 1 to 10. Tap the broken line.",
-      "lines": [
-        "Total ← 0",
-        "FOR Count ← 1 TO 10",
-        "    Total ← Total + Count",
-        "NEXT Count",
-        "OUTPUT \"Average: \", Total / 5"
+      "syllabus_code": "9618 4.1",
+      "chapter": 5,
+      "chapter_title": "Processor fundamentals",
+      "type": "cloze",
+      "hook": "The processor checks for interrupts ____.",
+      "options": [
+        "at the end of each fetch–execute cycle",
+        "in the middle of the decode stage"
       ],
-      "error_line": 5,
-      "answer": "Line 5 divides by 5, but there are 10 numbers. Correct: Total / 10, which gives 5.5.",
+      "answer": "Only after the execute stage is complete, before the next fetch. If the interrupt has a higher priority, the registers are saved and the ISR runs.",
+      "difficulty": 1,
+      "exam_weight": "high",
+      "duration_seconds": 20
+    },
+    {
+      "id": "cs-05-010",
+      "subject": "computer_science",
+      "syllabus_code": "9618 4.1",
+      "chapter": 5,
+      "chapter_title": "Processor fundamentals",
+      "type": "find_error",
+      "hook": "How an interrupt is handled. One line is wrong. Tap it.",
+      "lines": [
+        "A flag is set in the interrupt register",
+        "At the end of the F–E cycle, interrupts are checked",
+        "Its priority is lower, so the ISR runs now",
+        "Registers saved on the stack, ISR address into PC",
+        "ISR ends, registers restored, program resumes"
+      ],
+      "error_line": 3,
+      "answer": "Line 3: only an interrupt with HIGHER priority than the current task is handled. A lower one waits, and the fetch–execute cycle simply continues.",
       "difficulty": 2,
       "exam_weight": "high",
-      "duration_seconds": 25
+      "duration_seconds": 30
     }
   ]
 }
