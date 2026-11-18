@@ -30,7 +30,7 @@ Klick auf das Extension-Symbol (Einstellungsfenster):
 
 Gespeichert wird nur lokal im Browser: welche Karte wann gezeigt und wie beantwortet wurde, die Daumen-Bewertungen und die Einstellungen. Nichts davon verlässt das Gerät.
 
-**Code und Karten sind getrennt:** Die Extension lädt die Karten von GitHub (`extension/cards/` im Zweig `main`), höchstens alle 30 Minuten, oder sofort mit „Check for new cards“ im Einstellungsfenster. Neue Karten kommen so ohne neuen Download an; die YouTube-Seite einmal neu laden. Die zuletzt geladenen Karten bleiben im Browser gespeichert, ohne Internet geht also alles weiter. Bis zum ersten erfolgreichen Laden gelten die Karten im Extension-Ordner. Dabei werden nur die Kartendateien heruntergeladen, es wird nichts über den Nutzer gesendet.
+**Code und Karten sind getrennt:** Die Extension lädt die Karten aus dem öffentlichen Repo [learn_through_ads_cards](https://github.com/5akul/learn_through_ads_cards) (Ordner `cards/`, Zweig `main`); der Code hier bleibt privat. Neue Karten gehören dorthin, höchstens alle 30 Minuten, oder sofort mit „Check for new cards“ im Einstellungsfenster. Neue Karten kommen so ohne neuen Download an; die YouTube-Seite einmal neu laden. Die zuletzt geladenen Karten bleiben im Browser gespeichert, ohne Internet geht also alles weiter. Bis zum ersten erfolgreichen Laden gelten die Karten im Extension-Ordner. Dabei werden nur die Kartendateien heruntergeladen, es wird nichts über den Nutzer gesendet.
 
 Noch nicht drin: mehr Prüfungsfächer-Karten in den 8 Wochen vor der Prüfung, Tagesziel, Web Store.
 

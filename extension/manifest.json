@@ -23,7 +23,7 @@
     "storage"
   ],
   "host_permissions": [
-    "https://raw.githubusercontent.com/5akul/Learn_through_ads/*"
+    "https://raw.githubusercontent.com/5akul/learn_through_ads_cards/*"
   ],
   "background": {
     "service_worker": "background.js"
