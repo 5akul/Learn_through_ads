@@ -2,23 +2,167 @@
   "schema_version": 1,
   "cards": [
     {
-      "id": "ec-09-001",
+      "id": "ec-01-001",
       "subject": "economics",
-      "syllabus_code": "9708 4.5",
-      "chapter": 9,
-      "chapter_title": "Unemployment",
-      "type": "estimate",
-      "hook": "At the worst point of the Great Depression in 1933, what share of US workers had no job?",
-      "estimate": {
-        "min": 0,
-        "max": 50,
-        "correct": 25,
-        "tolerance": 3,
-        "unit": "%"
-      },
-      "answer": "About 25%, one worker in four. This is cyclical unemployment: demand collapsed, so firms cut jobs.",
+      "syllabus_code": "9708 1.1",
+      "chapter": 1,
+      "chapter_title": "Basic economic ideas",
+      "type": "cloze",
+      "hook": "____ is the value of the next best alternative given up when a choice is made.",
+      "options": [
+        "Opportunity cost",
+        "Marginal cost"
+      ],
+      "answer": "Opportunity cost exists because resources are scarce: choosing one thing always means giving up another.",
+      "difficulty": 1,
+      "exam_weight": "high",
+      "duration_seconds": 15
+    },
+    {
+      "id": "ec-01-002",
+      "subject": "economics",
+      "syllabus_code": "9708 1.5",
+      "chapter": 1,
+      "chapter_title": "Basic economic ideas",
+      "type": "hook_reveal",
+      "hook": "Why does a production possibility curve usually bow outwards from the origin?",
+      "answer": "Resources are not equally good at making both goods. Moving more into one good uses less suitable resources, so the opportunity cost keeps rising.",
+      "difficulty": 2,
+      "exam_weight": "high",
+      "duration_seconds": 25
+    },
+    {
+      "id": "ec-01-003",
+      "subject": "economics",
+      "syllabus_code": "9708 1.3",
+      "chapter": 1,
+      "chapter_title": "Basic economic ideas",
+      "type": "cloze",
+      "hook": "The reward for the factor of production enterprise is ____.",
+      "options": [
+        "profit",
+        "interest"
+      ],
+      "answer": "Profit. Land earns rent, labour earns wages and capital earns interest.",
       "difficulty": 1,
       "exam_weight": "medium",
+      "duration_seconds": 15
+    },
+    {
+      "id": "ec-01-004",
+      "subject": "economics",
+      "syllabus_code": "9708 1.6",
+      "chapter": 1,
+      "chapter_title": "Basic economic ideas",
+      "type": "cloze",
+      "hook": "A ____ good is non-rival and non-excludable, so the free market will not provide it.",
+      "options": [
+        "public",
+        "merit"
+      ],
+      "answer": "Public good, e.g. street lighting. Non-excludable people cannot be stopped from using it, which creates the free rider problem.",
+      "difficulty": 1,
+      "exam_weight": "high",
+      "duration_seconds": 20
+    },
+    {
+      "id": "ec-02-001",
+      "subject": "economics",
+      "syllabus_code": "9708 2.1",
+      "chapter": 2,
+      "chapter_title": "The price system",
+      "type": "cloze",
+      "hook": "A change in the good's own price causes a ____ demand curve.",
+      "options": [
+        "movement along the",
+        "shift of the"
+      ],
+      "answer": "Movement along the curve. A change in any other factor, like income or the price of a substitute, shifts the whole curve.",
+      "difficulty": 1,
+      "exam_weight": "high",
+      "duration_seconds": 15
+    },
+    {
+      "id": "ec-02-002",
+      "subject": "economics",
+      "syllabus_code": "9708 2.2",
+      "chapter": 2,
+      "chapter_title": "The price system",
+      "type": "find_error",
+      "hook": "Price rises, quantity demanded falls. Find the line with the mistake.",
+      "lines": [
+        "Price: $10 → $12 = +20%",
+        "Quantity: 100 → 90 = -10%",
+        "PED = % change in price ÷ % change in quantity",
+        "PED = 20 ÷ -10 = -2"
+      ],
+      "error_line": 3,
+      "answer": "Line 3 is upside down. PED = % change in quantity demanded ÷ % change in price = -10 ÷ 20 = -0.5, so demand is price inelastic.",
+      "difficulty": 2,
+      "exam_weight": "high",
+      "duration_seconds": 30
+    },
+    {
+      "id": "ec-02-003",
+      "subject": "economics",
+      "syllabus_code": "9708 2.2",
+      "chapter": 2,
+      "chapter_title": "The price system",
+      "type": "hook_reveal",
+      "hook": "A good has a negative income elasticity of demand. What kind of good is it?",
+      "answer": "An inferior good: when incomes rise, people buy less of it and switch to better alternatives, e.g. bus travel or cheap own-brand food.",
+      "difficulty": 1,
+      "exam_weight": "high",
+      "duration_seconds": 20
+    },
+    {
+      "id": "ec-02-004",
+      "subject": "economics",
+      "syllabus_code": "9708 2.2",
+      "chapter": 2,
+      "chapter_title": "The price system",
+      "type": "cloze",
+      "hook": "Two goods with a positive cross elasticity of demand are ____.",
+      "options": [
+        "substitutes",
+        "complements"
+      ],
+      "answer": "Substitutes: if the price of Coke rises, demand for Pepsi rises. Complements, like printers and ink, have a negative XED.",
+      "difficulty": 1,
+      "exam_weight": "high",
+      "duration_seconds": 15
+    },
+    {
+      "id": "ec-02-005",
+      "subject": "economics",
+      "syllabus_code": "9708 2.2",
+      "chapter": 2,
+      "chapter_title": "The price system",
+      "type": "estimate",
+      "hook": "Studies estimate the price elasticity of demand for cigarettes. Roughly what value?",
+      "estimate": {
+        "min": -2,
+        "max": 0,
+        "correct": -0.4,
+        "tolerance": 0.2,
+        "unit": "PED"
+      },
+      "answer": "About -0.4: demand is price inelastic because smoking is addictive and has few substitutes. That is why cigarette taxes raise a lot of revenue.",
+      "difficulty": 2,
+      "exam_weight": "medium",
+      "duration_seconds": 25
+    },
+    {
+      "id": "ec-02-006",
+      "subject": "economics",
+      "syllabus_code": "9708 2.4",
+      "chapter": 2,
+      "chapter_title": "The price system",
+      "type": "hook_reveal",
+      "hook": "You would pay $50 for a concert ticket, but it costs $30. What is the $20 called?",
+      "answer": "Consumer surplus: what you are willing to pay minus what you actually pay. On a diagram it is the area under the demand curve and above the price.",
+      "difficulty": 1,
+      "exam_weight": "high",
       "duration_seconds": 20
     }
   ]
