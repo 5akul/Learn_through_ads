@@ -29,7 +29,10 @@ function makeVideo() {
     channel: "chromium",
     headless: true,
     viewport: { width: 1000, height: 600 },
-    args: [`--disable-extensions-except=${EXT}`, `--load-extension=${EXT}`, "--autoplay-policy=no-user-gesture-required"],
+    args: [`--disable-extensions-except=${EXT}`, `--load-extension=${EXT}`, "--autoplay-policy=no-user-gesture-required",
+      // No internet for the extension: the tests use the cards in the extension folder,
+      // and the online cards are faked in their own test below.
+      "--host-resolver-rules=MAP raw.githubusercontent.com ~NOTFOUND"],
   });
   await context.route("https://www.youtube.com/**", (route) => {
     const url = route.request().url();
@@ -593,6 +596,50 @@ function makeVideo() {
     await page.evaluate(() => document.exitFullscreen());
     await page.waitForFunction(() => !document.fullscreenElement);
     await closeCard();
+  });
+
+  await step("cards come from GitHub, and the last loaded cards stay when offline", async () => {
+    // Fakes GitHub inside the extension: one online card for computer science, no other subjects.
+    const online = { ...allCards.find((c) => c.type === "hook_reveal"), id: "cs-99-001", hook: "This card came from GitHub, not from the folder." };
+    const fakeGitHub = (mode) => worker.evaluate(([mode, card]) => {
+      self.realFetch = self.realFetch || self.fetch;
+      self.fetch = async (url, opts) => {
+        if (!String(url).startsWith("https://raw.githubusercontent.com/")) return self.realFetch(url, opts);
+        if (mode === "offline") throw new TypeError("Failed to fetch");
+        if (String(url).endsWith("/computer_science.json")) return new Response(JSON.stringify({ schema_version: 1, cards: [card] }));
+        return new Response("Not Found", { status: 404 });
+      };
+    }, [mode, online]);
+    const cardsFromExtension = async () => {
+      const popup = await context.newPage();
+      await popup.goto(extensionUrl("popup.html"));
+      const list = await popup.evaluate(() => chrome.runtime.sendMessage({ type: "getCards" }));
+      const info = await popup.locator("#cardInfo").textContent();
+      return { popup, list, info };
+    };
+
+    await worker.evaluate(() => chrome.storage.local.remove(["cardCache", "cardCheck"]));
+    let r = await cardsFromExtension();
+    assert.equal(r.list.length, allCards.length, "before the first online load: the cards in the folder");
+    await r.popup.waitForFunction(() => document.getElementById("cardInfo").textContent.includes("folder"));
+    await r.popup.close();
+
+    await fakeGitHub("online");
+    assert.deepEqual(await worker.evaluate(() => self.refreshCards()), { ok: true, count: 1 });
+    r = await cardsFromExtension();
+    assert.deepEqual(r.list.map((c) => c.id), ["cs-99-001"], "after loading: exactly the cards on GitHub");
+    await r.popup.waitForFunction(() => document.getElementById("cardInfo").textContent.startsWith("1 cards, updated"));
+    await r.popup.close();
+
+    await fakeGitHub("offline");
+    assert.deepEqual(await worker.evaluate(() => self.refreshCards()), { ok: false });
+    r = await cardsFromExtension();
+    assert.deepEqual(r.list.map((c) => c.id), ["cs-99-001"], "offline: the last loaded cards stay");
+    await r.popup.locator("#update").click();
+    await r.popup.waitForFunction(() => document.getElementById("update").textContent.includes("No connection"));
+    await r.popup.close();
+
+    await worker.evaluate(() => { self.fetch = self.realFetch; return chrome.storage.local.remove(["cardCache", "cardCheck"]); });
   });
 
   assert.deepEqual(errors, [], "page errors: " + errors.join("; "));
